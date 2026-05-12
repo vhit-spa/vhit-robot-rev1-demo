@@ -1,0 +1,83 @@
+name: moveit2-base-humble
+title: MoveIt2 snap for ctrlX
+version: '0.1.0'
+
+summary: Provides MoveIt2 and ros2_control functionalities for ctrlX CORE
+
+description: |
+  MoveIt2 overlay snap running on top of ros2-base-humble.
+
+base: core22
+
+grade: devel
+confinement: strict
+
+architectures:
+  - build-on: [amd64, arm64]
+    build-for: [amd64]
+  - build-on: [amd64, arm64]
+    build-for: [arm64]
+
+parts:
+  moveit-base:
+    plugin: dump
+    source: ./install
+    stage-packages:
+      # MoveIt2
+      - ros-humble-moveit
+      - ros-humble-moveit-ros-move-group
+      - ros-humble-moveit-planners-ompl
+      - ros-humble-moveit-kinematics
+      # - ros-humble-moveit-ros-perception
+      # - ros-humble-moveit-servo
+      # - ros-humble-moveit-visual-tools
+
+      # ros2_control
+      - ros-humble-ros2-control
+      - ros-humble-ros2-controllers
+      - ros-humble-gripper-controllers
+
+      # Robot resources
+      - ros-humble-moveit-resources-panda-description
+      - ros-humble-moveit-resources-panda-moveit-config
+
+      # Utilities
+      - ros-humble-xacro
+
+      # DDS plugin
+      - ros-humble-rmw-cyclonedds-cpp
+
+      # OpenGL runtime
+      - libgl1
+      - libglu1-mesa
+
+      # ctrlX runtime
+      # - ctrlx-datalayer
+
+  scripts:
+    plugin: dump
+    source: ./scripts
+    organize:
+      '*': usr/bin/
+
+apps:
+  demo:
+    command: usr/bin/run-demo.sh
+    environment:
+      ROS_DISTRO: humble
+      RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+    plugs:
+      - ros-base
+      - datalayer
+      - network
+      - network-bind
+
+plugs:
+  ros-base:
+    interface: content
+    content: executables
+    target: $SNAP/rosruntime
+  datalayer:
+    interface: content
+    content: datalayer
+    target: $SNAP_DATA/.datalayer
