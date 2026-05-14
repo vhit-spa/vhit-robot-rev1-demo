@@ -10,7 +10,6 @@ stage/
 overlay/
 
 # Ignoring snap package
-
 *.snap
 
 # Python cache
@@ -19,3 +18,7 @@ __pycache__/
 
 # VS Code
 .vscode/
+
+# Ignoring mesh files
+*.part
+*.stl

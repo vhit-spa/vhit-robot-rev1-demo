@@ -1,0 +1,283 @@
+<?xml version="1.0"?>
+<robot name="vhit_robotics_rev_1" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Properties -->
+  <xacro:property name="mesh_dir" value="package://vhit_robot_demo/meshes/" />
+
+  <!-- Colors -->
+  <material name="blue">
+    <color rgba="0.231373 0.380392 0.705882 1"/>
+  </material>
+  <material name="grey">
+    <color rgba="0.701961 0.701961 0.701961 1"/>
+  </material>
+  <material name="light_blue">
+    <color rgba="0.32549 0.529412 0.752941 1"/>
+  </material>
+
+  <!-- DEFAULT INERTIA MACRO -->
+  <xacro:macro name="default_inertial" params="mass">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="${mass}"/>
+      <inertia ixx="1.0" ixy="0" ixz="0" iyy="1.0" iyz="0" izz="1.0"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- WORLD FRAME -->
+  <link name="world"/>
+
+  <!-- BASE LINK -->
+  <link name="base">
+    <xacro:default_inertial mass="1.0"/>
+    <!-- Part base -->
+    <visual>
+      <origin xyz="0 -0.0605 0.03" rpy="3.14159 0.0135592 -3.14159"/>
+      <geometry>
+        <mesh filename="${mesh_dir}base.stl"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 -0.0605 0.03" rpy="3.14159 0.0135592 -3.14159"/>
+      <geometry>
+        <mesh filename="${mesh_dir}base.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part elac217_f -->
+    <visual>
+      <origin xyz="0 -0.0605 0.03" rpy="-1.5708 -0.0135592 0"/>
+      <geometry>
+        <mesh filename="${mesh_dir}elac217_f.stl"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 -0.0605 0.03" rpy="-1.5708 -0.0135592 0"/>
+      <geometry>
+        <mesh filename="${mesh_dir}elac217_f.stl"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- SHOULDER LINK -->
+  <link name="shoulder">
+    <xacro:default_inertial mass="0.5"/>
+    <!-- Part elac217_b -->
+    <visual>
+      <origin xyz="0 -0.032 -0.056125" rpy="1.5708 1.5708 0"/>
+      <geometry>
+        <mesh filename="${mesh_dir}elac217_b.stl"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 -0.032 -0.056125" rpy="1.5708 1.5708 0"/>
+      <geometry>
+        <mesh filename="${mesh_dir}elac217_b.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part shoulder -->
+    <visual>
+      <origin xyz="0 -0.032 -0.056125" rpy="-1.5708 -0 -0"/>
+      <geometry>
+        <mesh filename="${mesh_dir}shoulder.stl"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 -0.032 -0.056125" rpy="-1.5708 -0 -0"/>
+      <geometry>
+        <mesh filename="${mesh_dir}shoulder.stl"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- ARM1 LINK -->
+  <link name="arm1">
+    <inertial>
+      <origin xyz="0.142779 3.59198e-07 -0.0248996" rpy="0 0 0"/>
+      <mass value="1.88077"/>
+      <inertia ixx="0.00149224" ixy="-1.53387e-07" ixz="-0.000665626" iyy="0.0275846" iyz="2.682e-09" izz="0.0281824"/>
+    </inertial>
+    <!-- Part arm1 -->
+    <visual>
+      <origin xyz="0.178 0 -0" rpy="-1.5708 0 0"/>
+      <geometry>
+        <mesh filename="${mesh_dir}arm1.stl"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0.178 0 -0" rpy="-1.5708 0 0"/>
+      <geometry>
+        <mesh filename="${mesh_dir}arm1.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part arm2 -->
+    <visual>
+      <origin xyz="0.178 0 -0" rpy="-1.5708 -0 3.14159"/>
+      <geometry>
+        <mesh filename="${mesh_dir}arm2.stl"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0.178 0 -0" rpy="-1.5708 -0 3.14159"/>
+      <geometry>
+        <mesh filename="${mesh_dir}arm2.stl"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- ELAC217_B LINK -->
+  <link name="elac217_b">
+    <xacro:default_inertial mass="0.3"/>
+    <!-- Part forearm -->
+    <visual>
+      <origin xyz="0.13 0 -0.0125" rpy="1.5708 -0 0"/>
+      <geometry>
+        <mesh filename="${mesh_dir}forearm.stl"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0.13 0 -0.0125" rpy="1.5708 -0 0"/>
+      <geometry>
+        <mesh filename="${mesh_dir}forearm.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part elac214_f -->
+    <visual>
+      <origin xyz="0.26 0 -0.0125" rpy="-0 -0 -1.5708"/>
+      <geometry>
+        <mesh filename="${mesh_dir}elac214_f.stl"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0.26 0 -0.0125" rpy="-0 -0 -1.5708"/>
+      <geometry>
+        <mesh filename="${mesh_dir}elac214_f.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part elac217_b_2 -->
+    <visual>
+      <origin xyz="-0 -0 -0.0125" rpy="-0 -0 -0"/>
+      <geometry>
+        <mesh filename="${mesh_dir}elac217_b.stl"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="-0 -0 -0.0125" rpy="-0 -0 -0"/>
+      <geometry>
+        <mesh filename="${mesh_dir}elac217_b.stl"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- WRIST LINK -->
+  <link name="wrist">
+    <xacro:default_inertial mass="0.2"/>
+    <!-- Part wrist -->
+    <visual>
+      <origin xyz="0.13 0 -0" rpy="-1.5708 -0 0"/>
+      <geometry>
+        <mesh filename="${mesh_dir}wrist.stl"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0.13 0 -0" rpy="-1.5708 -0 0"/>
+      <geometry>
+        <mesh filename="${mesh_dir}wrist.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part elac214_f_2 -->
+    <visual>
+      <origin xyz="0.12 0 0.036125" rpy="1.5708 -0 1.5708"/>
+      <geometry>
+        <mesh filename="${mesh_dir}elac214_f.stl"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0.12 0 0.036125" rpy="1.5708 -0 1.5708"/>
+      <geometry>
+        <mesh filename="${mesh_dir}elac214_f.stl"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- FLANGE LINK -->
+  <link name="flange">
+    <xacro:default_inertial mass="0.1"/>
+    <!-- Part flange -->
+    <visual>
+      <origin xyz="0 -0.03 -0.065125" rpy="-1.5708 -0 0"/>
+      <geometry>
+        <mesh filename="${mesh_dir}flange.stl"/>
+      </geometry>
+      <material name="light_blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 -0.03 -0.065125" rpy="-1.5708 -0 0"/>
+      <geometry>
+        <mesh filename="${mesh_dir}flange.stl"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- JOINTS -->
+  <!-- World to base fixed joint -->
+  <joint name="world_to_base" type="fixed">
+    <parent link="world"/>
+    <child link="base"/>
+    <origin xyz="0 0 0.15" rpy="1.57 0 0"/>
+  </joint>
+
+  <joint name="rotbase" type="revolute">
+    <origin xyz="-0 -0.048 0.03" rpy="1.5708 -1.03756 0"/>
+    <parent link="base"/>
+    <child link="shoulder"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10" lower="-3.14159" upper="3.14159"/>
+  </joint>
+
+  <joint name="shoulder_joint" type="revolute">
+    <origin xyz="0 -0.0445 -0.056125" rpy="-1.5708 1.13806 0"/>
+    <parent link="shoulder"/>
+    <child link="arm1"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10" lower="-3.14159" upper="3.14159"/>
+  </joint>
+
+  <joint name="elbow" type="revolute">
+    <origin xyz="0.356 -0 -0" rpy="-3.14159 -0 -1.75984"/>
+    <parent link="arm1"/>
+    <child link="elac217_b"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10" lower="-3.14159" upper="3.14159"/>
+  </joint>
+
+  <joint name="wrist_pitch" type="revolute">
+    <origin xyz="0.26 0 -0.0005" rpy="-3.14159 -0 -0.569007"/>
+    <parent link="elac217_b"/>
+    <child link="wrist"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10" lower="-3.14159" upper="3.14159"/>
+  </joint>
+
+  <joint name="wrist_roll" type="revolute">
+    <origin xyz="0.132 0 0.036125" rpy="1.5708 -1.45886 -1.5708"/>
+    <parent link="wrist"/>
+    <child link="flange"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10" lower="-3.14159" upper="3.14159"/>
+  </joint>
+
+  <xacro:include filename="$(find vhit_robot_demo)/urdf/vhit_robotics_rev_1.gazebo.xacro"/>
+  <xacro:include filename="$(find vhit_robot_demo)/urdf/vhit_robotics_rev_1.ros2_control.xacro"/>
+
+</robot>
