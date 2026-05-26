@@ -1,0 +1,25 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: vhit_robot_demo
+    relative_path: urdf/vhit_robotics_rev_1.urdf
+  srdf:
+    relative_path: config/vhit_robotics_rev_1.srdf
+  package_settings:
+    author_name: Riky
+    author_email: riccardo.valtorta@vhit-weifu.com
+    generated_timestamp: 1779271826
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
+  modified_urdf:
+    xacros:
+      - control_xacro
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity

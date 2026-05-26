@@ -1,0 +1,15 @@
+planner_configs:
+  RRTConnect:
+    type: geometric::RRTConnect
+    range: 0.0
+
+  RRTstar:
+    type: geometric::RRTstar
+    range: 0.0
+    goal_bias: 0.05
+    delay_collision_checking: 1
+
+robot_group:
+  planner_configs:
+    - RRTConnect
+    - RRTstar
