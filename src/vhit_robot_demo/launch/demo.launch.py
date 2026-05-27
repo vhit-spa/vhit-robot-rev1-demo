@@ -31,7 +31,7 @@ def generate_launch_description():
     rviz_config = os.path.join(
         pkg_share,
         "rviz",
-        "view.rviz"
+        "rviz_config.rviz"
     )
 
     return LaunchDescription([
