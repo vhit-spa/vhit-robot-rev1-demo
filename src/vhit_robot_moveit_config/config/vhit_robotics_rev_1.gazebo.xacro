@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="vhit_robotics_rev_1_gazebo" params="hardware">
+
+    <xacro:if value="${hardware == 'gazebo'}">
+      <gazebo>
+        <plugin filename="libgz_ros2_control-system.so"
+                name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+          <parameters>
+            $(find vhit_robot_demo)/config/vhit_robotics_rev_1_controllers.yaml
+          </parameters>
+        </plugin>
+      </gazebo>
+    </xacro:if>
+
+  </xacro:macro>
+
+</robot>

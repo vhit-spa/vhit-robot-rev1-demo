@@ -282,8 +282,11 @@
     </plugin>
   </gazebo>
   <ros2_control name="robot_system" type="system">
-    <hardware>
+    <!-- <hardware>
       <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware> -->
+    <hardware>
+      <plugin>mock_components/GenericSystem</plugin>
     </hardware>
     <joint name="rotbase">
       <command_interface name="position">

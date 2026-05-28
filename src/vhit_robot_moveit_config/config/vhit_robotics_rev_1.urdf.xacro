@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="vhit_robotics_rev_1">
     <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
+    <xacro:arg name="hardware" default="mock" />
 
     <!-- Import vhit_robotics_rev_1 urdf file -->
     <xacro:include filename="$(find vhit_robot_demo)/urdf/vhit_robotics_rev_1.urdf" />
@@ -8,7 +9,14 @@
     <!-- Import control_xacro -->
     <xacro:include filename="vhit_robotics_rev_1.ros2_control.xacro" />
 
+    <!-- Import gazebo_xacro -->
+    <xacro:include filename="vhit_robotics_rev_1.gazebo.xacro" />
 
-    <xacro:vhit_robotics_rev_1_ros2_control name="FakeSystem" initial_positions_file="$(arg initial_positions_file)"/>
-
+    <xacro:vhit_robotics_rev_1_ros2_control 
+        name="FakeSystem" 
+        initial_positions_file="$(arg initial_positions_file)"
+        hardware="$(arg hardware)" />
+    
+    <xacro:vhit_robotics_rev_1_gazebo hardware="$(arg hardware)" />
+    
 </robot>
