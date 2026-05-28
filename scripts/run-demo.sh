@@ -10,4 +10,4 @@ source $SNAP/local_setup.bash
 
 exec $ROS_BASE/opt/ros/humble/bin/ros2 launch \
   vhit_robot_moveit_config \
-  demo.launch.py
+  headless.launch.py
