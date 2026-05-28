@@ -1,13 +1,11 @@
-name: moveit2-demo
+name: vhit-robot-rev1-demo
 
-title: MoveIt2 demo snap for ctrlX
+version: '1.0.5'
 
-version: '1.0.0'
-
-summary: Tests MoveIt2 and ros2_control pipeline for ctrlX CORE
+summary: Tests MoveIt2 config for vhit robot rev1
 
 description: |
-  Tests the MoveIt2 overlay snap running on top of ros2-base-humble.
+  Tests MoveIt2 configuration for the vhit robot rev1 running on top of ros2-base-humble
 
 base: core22
 
@@ -22,12 +20,10 @@ architectures:
     build-for: [arm64]
 
 parts:
-  moveit-demo:
+  vhit-robot-rev1-demo:
     plugin: dump
     source: ./install
-    stage-packages: # Panda
-      - ros-humble-moveit-resources-panda-description 
-      - ros-humble-moveit-resources-panda-moveit-config
+    
   scripts:
     plugin: dump
     source: ./scripts
@@ -35,7 +31,7 @@ parts:
       '*': usr/bin/
 
 apps:
-  demo:
+  vhit-robot-rev1-demo:
     command: usr/bin/run-demo.sh
     environment:
       ROS_DISTRO: humble

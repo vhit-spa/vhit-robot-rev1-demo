@@ -1,0 +1,8 @@
+# Default initial positions for vhit_robotics_rev_1's ros2_control fake system
+
+initial_positions:
+  elbow: 0
+  rotbase: 0
+  shoulder_joint: 0
+  wrist_pitch: 0
+  wrist_roll: 0
