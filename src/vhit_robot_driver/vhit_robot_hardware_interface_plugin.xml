@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<library path="vhit_robot_driver">
+    <class name="vhit_robot_driver/VhitRobotHardwareInterface" 
+        type="vhit_robot_driver::VhitRobotHardwareInterface" 
+        base_class_type="hardware_interface::SystemInterface">
+
+        <description>
+            Vhit Robot Hardware Interface
+        </description>  
+    </class>
+</library>

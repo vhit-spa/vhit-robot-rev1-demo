@@ -1,0 +1,258 @@
+{
+    "variables": [
+        {
+            "name": "ELAC_node_LAN9253/PdoTx1_MappingParameters.Modes_of_Operation_Display",
+            "bitoffset": 128,
+            "bitsize": 8,
+            "type": "types/plc/sint",
+            "metadata": {
+                "nodeClass": "Variable",
+                "operations": {
+                    "read": true,
+                    "write": false,
+                    "create": false,
+                    "delete": false,
+                    "browse": false
+                },
+                "description": "ELAC_node_LAN9253  TxPDO (0x1A00): 0x6061:0x00",
+                "descriptionUrl": "",
+                "displayName": "",
+                "displayFormat": "Auto",
+                "unit": ""
+            }
+        },
+        {
+            "name": "ELAC_node_LAN9253/PdoTx1_MappingParameters.Position_Actual_Value",
+            "bitoffset": 96,
+            "bitsize": 32,
+            "type": "types/plc/dint",
+            "metadata": {
+                "nodeClass": "Variable",
+                "operations": {
+                    "read": true,
+                    "write": false,
+                    "create": false,
+                    "delete": false,
+                    "browse": false
+                },
+                "description": "ELAC_node_LAN9253  TxPDO (0x1A00): 0x6064:0x00",
+                "descriptionUrl": "",
+                "displayName": "",
+                "displayFormat": "Auto",
+                "unit": ""
+            }
+        },
+        {
+            "name": "ELAC_node_LAN9253/PdoTx1_MappingParameters.Status_Word",
+            "bitoffset": 80,
+            "bitsize": 16,
+            "type": "types/plc/uint",
+            "metadata": {
+                "nodeClass": "Variable",
+                "operations": {
+                    "read": true,
+                    "write": false,
+                    "create": false,
+                    "delete": false,
+                    "browse": false
+                },
+                "description": "ELAC_node_LAN9253  TxPDO (0x1A00): 0x6041:0x00",
+                "descriptionUrl": "",
+                "displayName": "",
+                "displayFormat": "Auto",
+                "unit": ""
+            }
+        },
+        {
+            "name": "Master/DistributedClocks.OutputShiftTime",
+            "bitoffset": 864,
+            "bitsize": 32,
+            "type": "types/plc/udint",
+            "metadata": {
+                "nodeClass": "Variable",
+                "operations": {
+                    "read": true,
+                    "write": false,
+                    "create": false,
+                    "delete": false,
+                    "browse": false
+                },
+                "description": "Time distance between task start time and DC_BASE",
+                "descriptionUrl": "",
+                "displayName": "",
+                "displayFormat": "Auto",
+                "unit": "ns"
+            }
+        },
+        {
+            "name": "Master/DistributedClocks.SendOffset",
+            "bitoffset": 928,
+            "bitsize": 32,
+            "type": "types/plc/udint",
+            "metadata": {
+                "nodeClass": "Variable",
+                "operations": {
+                    "read": true,
+                    "write": false,
+                    "create": false,
+                    "delete": false,
+                    "browse": false
+                },
+                "description": "Send offset used for compensation of send jitter",
+                "descriptionUrl": "",
+                "displayName": "",
+                "displayFormat": "Auto",
+                "unit": "ns"
+            }
+        },
+        {
+            "name": "Master/DistributedClocks.SyncMode",
+            "bitoffset": 672,
+            "bitsize": 32,
+            "type": "types/plc/udint",
+            "metadata": {
+                "nodeClass": "Variable",
+                "operations": {
+                    "read": true,
+                    "write": false,
+                    "create": false,
+                    "delete": false,
+                    "browse": false
+                },
+                "description": "EtherCAT master synchronization mode",
+                "descriptionUrl": "",
+                "displayName": "",
+                "displayFormat": "Auto",
+                "unit": ""
+            }
+        },
+        {
+            "name": "Master/States.Current",
+            "bitoffset": 384,
+            "bitsize": 32,
+            "type": "types/plc/udint",
+            "metadata": {
+                "nodeClass": "Variable",
+                "operations": {
+                    "read": true,
+                    "write": false,
+                    "create": false,
+                    "delete": false,
+                    "browse": false
+                },
+                "description": "Current EtherCAT master state",
+                "descriptionUrl": "",
+                "displayName": "",
+                "displayFormat": "Auto",
+                "unit": ""
+            }
+        },
+        {
+            "name": "Master/States.Requested",
+            "bitoffset": 416,
+            "bitsize": 32,
+            "type": "types/plc/udint",
+            "metadata": {
+                "nodeClass": "Variable",
+                "operations": {
+                    "read": true,
+                    "write": false,
+                    "create": false,
+                    "delete": false,
+                    "browse": false
+                },
+                "description": "Requested EtherCAT master state",
+                "descriptionUrl": "",
+                "displayName": "",
+                "displayFormat": "Auto",
+                "unit": ""
+            }
+        },
+        {
+            "name": "Master/SyncUnits/default.WkcValidIn",
+            "bitoffset": 1413,
+            "bitsize": 1,
+            "type": "types/plc/bit",
+            "metadata": {
+                "nodeClass": "Variable",
+                "operations": {
+                    "read": true,
+                    "write": false,
+                    "create": false,
+                    "delete": false,
+                    "browse": false
+                },
+                "description": "WkcValid for inputs",
+                "descriptionUrl": "",
+                "displayName": "",
+                "displayFormat": "Auto",
+                "unit": ""
+            }
+        },
+        {
+            "name": "Master/SyncUnits/default.WkcValidOut",
+            "bitoffset": 1411,
+            "bitsize": 1,
+            "type": "types/plc/bit",
+            "metadata": {
+                "nodeClass": "Variable",
+                "operations": {
+                    "read": true,
+                    "write": false,
+                    "create": false,
+                    "delete": false,
+                    "browse": false
+                },
+                "description": "WkcValid for outputs",
+                "descriptionUrl": "",
+                "displayName": "",
+                "displayFormat": "Auto",
+                "unit": ""
+            }
+        },
+        {
+            "name": "Master/Task.CycleTime",
+            "bitoffset": 704,
+            "bitsize": 32,
+            "type": "types/plc/udint",
+            "metadata": {
+                "nodeClass": "Variable",
+                "operations": {
+                    "read": true,
+                    "write": false,
+                    "create": false,
+                    "delete": false,
+                    "browse": false
+                },
+                "description": "",
+                "descriptionUrl": "",
+                "displayName": "",
+                "displayFormat": "Auto",
+                "unit": "ns"
+            }
+        },
+        {
+            "name": "Master/Task.StartTime",
+            "bitoffset": 736,
+            "bitsize": 64,
+            "type": "types/plc/ulint",
+            "metadata": {
+                "nodeClass": "Variable",
+                "operations": {
+                    "read": true,
+                    "write": false,
+                    "create": false,
+                    "delete": false,
+                    "browse": false
+                },
+                "description": "",
+                "descriptionUrl": "",
+                "displayName": "",
+                "displayFormat": "Auto",
+                "unit": "ns"
+            }
+        }
+    ],
+    "revision": 3435935539,
+    "disableInputImage": false
+}

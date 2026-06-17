@@ -23,6 +23,7 @@
             </xacro:if>
 
             <joint name="rotbase">
+                <param name="DL_node">${elac_mapping['rotbase']}</param>
                 <command_interface name="position"/>
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['rotbase']}</param>
@@ -30,6 +31,7 @@
                 <state_interface name="velocity"/>
             </joint>
             <joint name="shoulder_joint">
+                <param name="DL_node">${elac_mapping['shoulder_joint']}</param>
                 <command_interface name="position"/>
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['shoulder_joint']}</param>
@@ -37,6 +39,7 @@
                 <state_interface name="velocity"/>
             </joint>
             <joint name="elbow">
+                <param name="DL_node">${elac_mapping['elbow']}</param>
                 <command_interface name="position"/>
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['elbow']}</param>
@@ -44,6 +47,7 @@
                 <state_interface name="velocity"/>
             </joint>
             <joint name="wrist_pitch">
+                <param name="DL_node">${elac_mapping['wrist_pitch']}</param>
                 <command_interface name="position"/>
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['wrist_pitch']}</param>
@@ -51,6 +55,7 @@
                 <state_interface name="velocity"/>
             </joint>
             <joint name="wrist_roll">
+                <param name="DL_node">${elac_mapping['wrist_roll']}</param>
                 <command_interface name="position"/>
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['wrist_roll']}</param>

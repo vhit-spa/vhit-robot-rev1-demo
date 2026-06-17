@@ -1,0 +1,69 @@
+{
+    "variables": [
+        {
+            "name": "ELAC_node_LAN9253/PdoRx1_MappingParameters.Control_Word",
+            "bitoffset": 80,
+            "bitsize": 16,
+            "type": "types/plc/uint",
+            "metadata": {
+                "nodeClass": "Variable",
+                "operations": {
+                    "read": true,
+                    "write": true,
+                    "create": false,
+                    "delete": false,
+                    "browse": false
+                },
+                "description": "ELAC_node_LAN9253  RxPDO (0x1600): 0x6040:0x00",
+                "descriptionUrl": "",
+                "displayName": "",
+                "displayFormat": "Auto",
+                "unit": ""
+            }
+        },
+        {
+            "name": "ELAC_node_LAN9253/PdoRx1_MappingParameters.Modes_of_Operation",
+            "bitoffset": 128,
+            "bitsize": 8,
+            "type": "types/plc/sint",
+            "metadata": {
+                "nodeClass": "Variable",
+                "operations": {
+                    "read": true,
+                    "write": true,
+                    "create": false,
+                    "delete": false,
+                    "browse": false
+                },
+                "description": "ELAC_node_LAN9253  RxPDO (0x1600): 0x6060:0x00",
+                "descriptionUrl": "",
+                "displayName": "",
+                "displayFormat": "Auto",
+                "unit": ""
+            }
+        },
+        {
+            "name": "ELAC_node_LAN9253/PdoRx1_MappingParameters.Target_Position",
+            "bitoffset": 96,
+            "bitsize": 32,
+            "type": "types/plc/dint",
+            "metadata": {
+                "nodeClass": "Variable",
+                "operations": {
+                    "read": true,
+                    "write": true,
+                    "create": false,
+                    "delete": false,
+                    "browse": false
+                },
+                "description": "ELAC_node_LAN9253  RxPDO (0x1600): 0x607A:0x00",
+                "descriptionUrl": "",
+                "displayName": "",
+                "displayFormat": "Auto",
+                "unit": ""
+            }
+        }
+    ],
+    "revision": 3435935539,
+    "disableInputImage": false
+}

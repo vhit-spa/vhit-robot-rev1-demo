@@ -1,0 +1,6 @@
+elac_mapping:
+  elbow: "ELAC_node_LAN9253"
+  rotbase: "ELAC_node_LAN9253"
+  shoulder_joint: "ELAC_node_LAN9253"
+  wrist_pitch: "ELAC_node_LAN9253"
+  wrist_roll: "ELAC_node_LAN9253"

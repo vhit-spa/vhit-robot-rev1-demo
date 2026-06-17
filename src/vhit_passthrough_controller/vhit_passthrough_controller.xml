@@ -1,0 +1,9 @@
+<library path="vhit_passthrough_controller">
+  <class name="vhit_passthrough_controller/VhitPassthroughController"
+         type="vhit_passthrough_controller::VhitPassthroughController" 
+         base_class_type="controller_interface::ControllerInterface">
+  <description>
+    VhitPassthroughController ros2_control controller.
+  </description>
+  </class>
+</library>
