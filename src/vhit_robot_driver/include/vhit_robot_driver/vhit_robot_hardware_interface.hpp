@@ -78,9 +78,9 @@ protected:
 
   // Datalayer addresses for RT comm
   // fieldbuses/ethercat/master/instances/ethercatmaster/realtime_data/input/map
-  const std::string g_ethercatReadingBaseAddress =
+  const std::string g_ethercatReadingMap =
     "fieldbuses/ethercat/master/instances/ethercatmaster/realtime_data/input/map";
-  const std::string g_ethercatWritingBaseAddress =
+  const std::string g_ethercatWritingMap =
     "fieldbuses/ethercat/master/instances/ethercatmaster/realtime_data/output/map";
 
   const std::string g_positionActualValuePDO = "PdoTx1_MappingParameters.Position_Actual_Value";

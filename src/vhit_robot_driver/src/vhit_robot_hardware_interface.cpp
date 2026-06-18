@@ -1,5 +1,6 @@
 #include "vhit_robot_driver/vhit_robot_hardware_interface.hpp"
 #include "ctrlx_datalayer_helper.h"
+#include "shared_memory_helper.hpp"
 
 #include "rclcpp/logging.hpp"
 
@@ -138,6 +139,21 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_configure(
       rclcpp::get_logger("VhitRobotHardwareInterface"),
       "Successfully connected to ctrlX CORE");
   }
+
+  // Test datalayer connection first
+  comm::datalayer::Variant variant;
+  auto result = client_->readSync("framework/metrics/system/cpu-utilisation-percent", &variant);
+  if (STATUS_SUCCEEDED(result)) {
+    RCLCPP_INFO(
+      rclcpp::get_logger("VhitRobotHardwareInterface"),
+      "Successfully read from ctrlX CORE: CPU Utilization = %f", double(variant));
+  } else {
+    RCLCPP_ERROR(
+      rclcpp::get_logger("VhitRobotHardwareInterface"),
+      "Failed to read from ctrlX CORE: %s", result.toString());
+    return hardware_interface::CallbackReturn::FAILURE;
+  }
+
   // Interface states - Datalayer mapping
   for (auto & [name, dl_type] : state_interfaces_to_dl_states_) {
     RCLCPP_INFO(
@@ -178,19 +194,6 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_configure(
       rclcpp::get_logger(
         "DataLayerHardwareInterface_NRT"), "Get initial values from StateInteface<%s> which is:{%f}",
       name.c_str(), dl_type.value);
-  }
-
-  comm::datalayer::Variant variant;
-  auto result = client_->readSync("framework/metrics/system/cpu-utilisation-percent", &variant);
-  if (STATUS_SUCCEEDED(result)) {
-    RCLCPP_INFO(
-      rclcpp::get_logger("VhitRobotHardwareInterface"),
-      "Successfully read from ctrlX CORE: CPU Utilization = %f", double(variant));
-  } else {
-    RCLCPP_ERROR(
-      rclcpp::get_logger("VhitRobotHardwareInterface"),
-      "Failed to read from ctrlX CORE: %s", result.toString());
-    return hardware_interface::CallbackReturn::FAILURE;
   }
 
   return hardware_interface::CallbackReturn::SUCCESS;
@@ -300,12 +303,12 @@ std::vector<hardware_interface::StateInterface> VhitRobotHardwareInterface::expo
 
     elac_mapping_node = info_.joints[i].parameters["DL_node"];
 
-    full_variable_address = g_ethercatReadingBaseAddress + "/" + elac_mapping_node + "/" +
+    full_variable_address = g_ethercatReadingMap + "/" + elac_mapping_node + "/" +
       g_positionActualValuePDO;
 
     state_interfaces_to_dl_states_.emplace(
       std::make_pair(
-        full_variable_address,
+        joint_names_[i],
         DatalayerType(
           std::numeric_limits<double>::quiet_NaN(), comm::datalayer::VariantType::INT32,
           full_variable_address))
@@ -347,12 +350,12 @@ export_command_interfaces()
 
     elac_mapping_node = info_.joints[i].parameters["DL_node"];
 
-    full_variable_address = g_ethercatWritingBaseAddress + "/" + elac_mapping_node + "/" +
+    full_variable_address = g_ethercatWritingMap + "/" + elac_mapping_node + "/" +
       g_positionTargetValuePDO;
 
     command_interfaces_to_dl_commands_.emplace(
       std::make_pair(
-        full_variable_address,
+        joint_names_[i],
         DatalayerType(
           std::numeric_limits<double>::quiet_NaN(), comm::datalayer::VariantType::INT32,
           full_variable_address))
