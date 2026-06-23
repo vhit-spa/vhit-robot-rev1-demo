@@ -18,7 +18,7 @@
 
             <xacro:if value="${hardware == 'real'}">
                 <hardware>
-                    <plugin>vhit_hw/VHitSystem</plugin>
+                    <plugin>vhit_robot_driver/VhitRobotHardwareInterface</plugin>
                 </hardware>
             </xacro:if>
 

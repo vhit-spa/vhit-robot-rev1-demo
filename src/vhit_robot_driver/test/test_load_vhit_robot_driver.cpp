@@ -48,9 +48,9 @@ protected:
   void SetUp() override
   {
     // REMOVE THIS MEMBER ONCE FAKE COMPONENTS ARE REMOVED
-    hardware_fake_system_2dof_ =
+    hardware_fake_system_ =
       R"(
-  <ros2_control name="GenericSystem2dof" type="system">
+  <ros2_control name="GenericSystem" type="system">
     <hardware>
       <plugin>vhit_robot_driver/VhitRobotHardwareInterface</plugin>
       <param name="ip_address">192.168.1.1</param>
@@ -96,9 +96,9 @@ protected:
   </ros2_control>
 )";
 
-    hardware_system_2dof_ =
+    hardware_system_ =
       R"(
-  <ros2_control name="GenericSystem2dof" type="system">
+  <ros2_control name="GenericSystem" type="system">
     <hardware>
       <plugin>vhit_robot_driver/VhitRobotHardwareInterface</plugin>
       <param name="ip_address">192.168.1.1</param>
@@ -145,8 +145,8 @@ protected:
 )";
   }
 
-  std::string hardware_system_2dof_;
-  std::string hardware_fake_system_2dof_;
+  std::string hardware_system_;
+  std::string hardware_fake_system_;
 };
 
 // Forward declaration
@@ -159,17 +159,6 @@ class TestableResourceManager : public hardware_interface::ResourceManager
 {
 public:
   friend TestGenericSystem;
-
-  FRIEND_TEST(TestGenericSystem, generic_system_2dof_symetric_interfaces);
-  FRIEND_TEST(TestGenericSystem, generic_system_2dof_asymetric_interfaces);
-  FRIEND_TEST(TestGenericSystem, generic_system_2dof_other_interfaces);
-  FRIEND_TEST(TestGenericSystem, generic_system_2dof_sensor);
-  FRIEND_TEST(TestGenericSystem, generic_system_2dof_sensor_mock_command);
-  FRIEND_TEST(TestGenericSystem, generic_system_2dof_sensor_mock_command_True);
-  FRIEND_TEST(TestGenericSystem, hardware_system_2dof_with_mimic_joint);
-  FRIEND_TEST(TestGenericSystem, valid_urdf_ros2_control_system_robot_with_gpio);
-  FRIEND_TEST(TestGenericSystem, valid_urdf_ros2_control_system_robot_with_gpio_mock_command);
-  FRIEND_TEST(TestGenericSystem, valid_urdf_ros2_control_system_robot_with_gpio_mock_command_True);
 
   TestableResourceManager()
   : hardware_interface::ResourceManager() {}
@@ -193,7 +182,7 @@ void set_components_state(
 
 auto configure_components = [](
   TestableResourceManager & rm,
-  const std::vector<std::string> & components = {"GenericSystem2dof"})
+  const std::vector<std::string> & components = {"GenericSystem"})
   {
     set_components_state(
       rm, components, lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE,
@@ -202,7 +191,7 @@ auto configure_components = [](
 
 auto activate_components = [](
   TestableResourceManager & rm,
-  const std::vector<std::string> & components = {"GenericSystem2dof"})
+  const std::vector<std::string> & components = {"GenericSystem"})
   {
     set_components_state(
       rm, components, lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE,
@@ -211,16 +200,16 @@ auto activate_components = [](
 
 auto deactivate_components = [](
   TestableResourceManager & rm,
-  const std::vector<std::string> & components = {"GenericSystem2dof"})
+  const std::vector<std::string> & components = {"GenericSystem"})
   {
     set_components_state(
       rm, components, lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE,
       hardware_interface::lifecycle_state_names::INACTIVE);
   };
 
-TEST_F(TestGenericSystem, load_generic_system_2dof)
+TEST_F(TestGenericSystem, load_generic_system_)
 {
-  auto urdf = ros2_control_test_assets::urdf_head + hardware_system_2dof_ +
+  auto urdf = ros2_control_test_assets::urdf_head + hardware_system_ +
     ros2_control_test_assets::urdf_tail;
   try {
     TestableResourceManager rm(urdf);
@@ -230,10 +219,10 @@ TEST_F(TestGenericSystem, load_generic_system_2dof)
   ASSERT_NO_THROW(TestableResourceManager rm(urdf));
 }
 
-TEST_F(TestGenericSystem, activate_generic_system_2dof)
+TEST_F(TestGenericSystem, activate_generic_system_)
 {
   auto urdf = ros2_control_test_assets::urdf_head +
-    hardware_system_2dof_ +
+    hardware_system_ +
     ros2_control_test_assets::urdf_tail;
 
   TestableResourceManager rm(urdf);
