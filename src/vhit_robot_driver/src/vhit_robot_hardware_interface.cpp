@@ -67,7 +67,7 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_init(
       rclcpp::get_logger(
         "VhitRobotHardwareInterface"), "creating a position CommandInterface for type <INT32> that maps from [%s, %s, %s]",
       joint.name.c_str(), jointMapping.actual_position_variable.c_str(),
-      jointMapping.target_position_variable);
+      jointMapping.target_position_variable.c_str());
 
   }
 

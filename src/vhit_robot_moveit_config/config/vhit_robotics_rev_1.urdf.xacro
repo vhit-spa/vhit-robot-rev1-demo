@@ -15,7 +15,8 @@
     <xacro:vhit_robotics_rev_1_ros2_control 
         name="FakeSystem" 
         initial_positions_file="$(arg initial_positions_file)"
-        hardware="$(arg hardware)" />
+        hardware="$(arg hardware)"
+        elac_mapping_file="$(arg elac_mapping_file)" />
     
     <xacro:vhit_robotics_rev_1_gazebo hardware="$(arg hardware)" />
     

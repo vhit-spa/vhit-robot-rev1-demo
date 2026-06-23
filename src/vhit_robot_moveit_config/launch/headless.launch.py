@@ -38,14 +38,22 @@ def generate_launch_description():
         "config",
         "vhit_robotics_rev_1.urdf.xacro"
     )
+
+    # Joint mapping to ethercat
+    elac_mapping_file = os.path.join(
+        package_share,
+        "config",
+        "elac_mapping.yaml"
+    )
     
     robot_description_config = xacro.process_file(
         xacro_file,
         # Optional: Pass arguments to the xacro file if needed
-        # mappings={
-        #     "hardware": "mock",
-        #     "initial_positions_file": "initial_positions.yaml"
-        # }
+        mappings={
+            "hardware": "real",
+            "elac_mapping_file": elac_mapping_file,
+            # "initial_positions_file": "initial_positions.yaml"
+        }
     )
     
     robot_description = {

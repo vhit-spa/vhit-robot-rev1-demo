@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <xacro:macro name="vhit_robotics_rev_1_ros2_control" params="name initial_positions_file hardware">
+    <xacro:macro name="vhit_robotics_rev_1_ros2_control" params="name initial_positions_file hardware elac_mapping_file">
         <xacro:property name="initial_positions" value="${xacro.load_yaml(initial_positions_file)['initial_positions']}"/>
+        <xacro:property name="elac_mapping" value="${xacro.load_yaml(elac_mapping_file)['elac_mapping']}"/>
 
         <ros2_control name="${name}" type="system">
             <xacro:if value="${hardware == 'mock'}">
@@ -28,7 +29,7 @@
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['rotbase']}</param>
                 </state_interface>
-                <state_interface name="velocity"/>
+                <!-- <state_interface name="velocity"/> -->
             </joint>
             <joint name="shoulder_joint">
                 <param name="DL_node">${elac_mapping['shoulder_joint']}</param>
@@ -36,7 +37,7 @@
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['shoulder_joint']}</param>
                 </state_interface>
-                <state_interface name="velocity"/>
+                <!-- <state_interface name="velocity"/> -->
             </joint>
             <joint name="elbow">
                 <param name="DL_node">${elac_mapping['elbow']}</param>
@@ -44,7 +45,7 @@
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['elbow']}</param>
                 </state_interface>
-                <state_interface name="velocity"/>
+                <!-- <state_interface name="velocity"/> -->
             </joint>
             <joint name="wrist_pitch">
                 <param name="DL_node">${elac_mapping['wrist_pitch']}</param>
@@ -52,7 +53,7 @@
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['wrist_pitch']}</param>
                 </state_interface>
-                <state_interface name="velocity"/>
+                <!-- <state_interface name="velocity"/> -->
             </joint>
             <joint name="wrist_roll">
                 <param name="DL_node">${elac_mapping['wrist_roll']}</param>
@@ -60,7 +61,7 @@
                 <state_interface name="position">
                   <param name="initial_value">${initial_positions['wrist_roll']}</param>
                 </state_interface>
-                <state_interface name="velocity"/>
+                <!-- <state_interface name="velocity"/> -->
             </joint>
 
         </ros2_control>

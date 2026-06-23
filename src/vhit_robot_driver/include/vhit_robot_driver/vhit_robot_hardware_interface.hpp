@@ -46,7 +46,7 @@ public:
 
 protected:
   std::vector<std::string> joint_names_;
-  std::uint8_t num_joints_;
+  std::size_t num_joints_;
 
   std::vector<double> command_joint_positions_;
   std::vector<double> current_joint_positions_;
@@ -58,7 +58,7 @@ protected:
   int ssl_port_;
 
   std::unique_ptr<comm::datalayer::DatalayerSystem> datalayer_;
-  comm::datalayer::IClient * client_;
+  comm::datalayer::IClient * client_ = nullptr;
   std::unique_ptr<SharedMemoryArea> readMemoryArea_;
   std::unique_ptr<SharedMemoryArea> writeMemoryArea_;
 

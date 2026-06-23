@@ -1,6 +1,6 @@
 name: vhit-robot-rev1-demo
 
-version: '1.2.0'
+version: '1.3.6'
 
 summary: Tests MoveIt2 config for vhit robot rev1
 
@@ -23,6 +23,10 @@ parts:
   vhit-robot-rev1-demo:
     plugin: dump
     source: ./install
+    stage-packages:
+      # ctrlx datalayer stuff
+      - ctrlx-datalayer
+      - libzmq5
     
   scripts:
     plugin: dump
@@ -54,3 +58,11 @@ plugs:
     interface: content
     content: moveit-runtime
     target: $SNAP/moveit-runtime
+  datalayer:
+    interface: content
+    content: datalayer
+    target: $SNAP_DATA/.datalayer
+  datalayer-shm:
+    interface: shared-memory
+    content: datalayer-shm
+    target: $SNAP_DATA/.datalayer
