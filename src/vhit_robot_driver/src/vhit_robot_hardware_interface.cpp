@@ -34,8 +34,8 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_init(
   num_joints_ = info_.joints.size();
 
   // Allocate vectors
-  command_joint_positions_.reserve(num_joints_);
-  current_joint_positions_.reserve(num_joints_);
+  command_joint_positions_.resize(num_joints_, 0.0);
+  current_joint_positions_.resize(num_joints_, 0.0);
 
   for (const auto & joint : info_.joints) {
     joint_names_.push_back(joint.name);
@@ -44,12 +44,31 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_init(
         "VhitRobotHardwareInterface"), "Joint '%s' added to hardware interface",
       joint.name.c_str());
 
-    if (joint.parameters.find("DL_node") == joint.parameters.end()){
+    if (joint.parameters.find("DL_node") == joint.parameters.end()) {
       RCLCPP_ERROR(
         rclcpp::get_logger(
           "VhitRobotHardwareInterface"), "Missing parameter %s for joint %s",
-          "DL_node", joint.name.c_str());
+        "DL_node", joint.name.c_str());
+      return hardware_interface::CallbackReturn::FAILURE;
     }
+
+    // SharedMemoryArea indexes variables by memory-map relative names
+    JointDatalayerMapping jointMapping;
+    jointMapping.joint_name = joint.name;
+    jointMapping.ethercat_node = joint.parameters.at("DL_node");
+    jointMapping.actual_position_variable = joint.parameters.at("DL_node") + "/" +
+      g_positionActualValuePDO_;
+    jointMapping.target_position_variable = joint.parameters.at("DL_node") + "/" +
+      g_positionTargetValuePDO_;
+
+    joint_dl_mappings_.emplace_back(jointMapping);
+
+    RCLCPP_INFO(
+      rclcpp::get_logger(
+        "VhitRobotHardwareInterface"), "creating a position CommandInterface for type <INT32> that maps from [%s, %s, %s]",
+      joint.name.c_str(), jointMapping.actual_position_variable.c_str(),
+      jointMapping.target_position_variable);
+
   }
 
   // Parse connection parameters for ctrlX CORE from hardware info if provided, otherwise use default values
@@ -164,14 +183,14 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_configure(
     datalayer_.get(), client_, g_ethercatReadingArea_);
   writeMemoryArea_ = std::make_unique<SharedMemoryArea>(
     datalayer_.get(), client_, g_ethercatWritingArea_);
-    
+
   // Get memory mappings
   std::string what;
   result = readMemoryArea_->refresh_map(what);
   if (STATUS_FAILED(result)) {
     RCLCPP_ERROR(
       rclcpp::get_logger("VhitRobotHardwareInterface"), what.c_str());
-      RCLCPP_ERROR(
+    RCLCPP_ERROR(
       rclcpp::get_logger("VhitRobotHardwareInterface"), result.toString());
     return hardware_interface::CallbackReturn::FAILURE;
   }
@@ -190,25 +209,29 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_configure(
   // Interface states - Datalayer mapping
   // Check correspondence between state_interfaces_to_dl_states_ and SharedMemoryVariable
   auto readMemoryAreaVars = readMemoryArea_->getVariables();
-  for(int i = 0; i < num_joints_; i++){
-    if (readMemoryAreaVars.find(state_interfaces_to_dl_states_.at(joint_names_[i])) == readMemoryAreaVars.end()){
+  for (int i = 0; i < num_joints_; i++) {
+    if (readMemoryAreaVars.find(joint_dl_mappings_[i].actual_position_variable) ==
+      readMemoryAreaVars.end())
+    {
       RCLCPP_ERROR(
         rclcpp::get_logger("VhitRobotHardwareInterface"),
-      "Mapping not found: [%s, %s]", joint_names_[i], 
-      state_interfaces_to_dl_states_.at(joint_names_[i]));
+        "Mapping not found: [%s, %s]", joint_names_[i].c_str(),
+        joint_dl_mappings_[i].actual_position_variable.c_str());
       return hardware_interface::CallbackReturn::FAILURE;
     }
   }
 
   // Interface commands - Datalayer mapping
   // Check correspondence between command_interfaces_to_dl_commands_ and SharedMemoryVariable
-  auto writeMemoryAreaVars = readMemoryArea_->getVariables();
-  for(int i = 0; i < num_joints_; i++){
-    if (writeMemoryAreaVars.find(command_interfaces_to_dl_commands_.at(joint_names_[i])) == writeMemoryAreaVars.end()){
+  auto writeMemoryAreaVars = writeMemoryArea_->getVariables();
+  for (int i = 0; i < num_joints_; i++) {
+    if (writeMemoryAreaVars.find(joint_dl_mappings_[i].target_position_variable) ==
+      writeMemoryAreaVars.end())
+    {
       RCLCPP_ERROR(
         rclcpp::get_logger("VhitRobotHardwareInterface"),
-      "Mapping not found: [%s, %s]", joint_names_[i], 
-      command_interfaces_to_dl_commands_.at(joint_names_[i]));
+        "Mapping not found: [%s, %s]", joint_names_[i].c_str(),
+        joint_dl_mappings_[i].target_position_variable.c_str());
       return hardware_interface::CallbackReturn::FAILURE;
     }
   }
@@ -299,27 +322,14 @@ std::vector<hardware_interface::StateInterface> VhitRobotHardwareInterface::expo
   RCLCPP_INFO(
     rclcpp::get_logger("VhitRobotHardwareInterface"),
     "Exporting state interfaces:");
-  std::string elac_mapping_node;
-  std::string full_variable_address;
 
   // Export state interfaces here
   for (size_t i = 0; i < num_joints_; i++) {
 
-    elac_mapping_node = info_.joints[i].parameters["DL_node"];
-
-    full_variable_address = g_ethercatReadingArea_ + "/map/" + elac_mapping_node + "/" +
-      g_positionActualValuePDO_;
-
-    state_interfaces_to_dl_states_.emplace(
-      std::make_pair(
-        joint_names_[i],
-        full_variable_address)
-    );
-
     RCLCPP_INFO(
       rclcpp::get_logger(
-        "VhitRobotHardwareInterface"), "creating a position StateInteface for type <INT32> that maps from [%s, %s]",
-      joint_names_[i].c_str(), full_variable_address.c_str());
+        "VhitRobotHardwareInterface"), "creating a position StateInteface for %s",
+      joint_names_[i].c_str());
 
     state_interfaces.emplace_back(
       hardware_interface::StateInterface(
@@ -337,27 +347,14 @@ export_command_interfaces()
   RCLCPP_INFO(
     rclcpp::get_logger("VhitRobotHardwareInterface"),
     "Exporting command interfaces:");
-  std::string elac_mapping_node;
-  std::string full_variable_address;
 
   // Export command interfaces here
   for (size_t i = 0; i < num_joints_; i++) {
 
-    elac_mapping_node = info_.joints[i].parameters["DL_node"];
-
-    full_variable_address = g_ethercatWritingArea_ + "/map/" + elac_mapping_node + "/" +
-      g_positionTargetValuePDO_;
-
-    command_interfaces_to_dl_commands_.emplace(
-      std::make_pair(
-        joint_names_[i],
-        full_variable_address)
-    );
-
     RCLCPP_INFO(
       rclcpp::get_logger(
-        "VhitRobotHardwareInterface"), "creating a position CommandInterface for type <INT32> that maps from [%s, %s]",
-      joint_names_[i].c_str(), full_variable_address.c_str());
+        "VhitRobotHardwareInterface"), "creating a position CommandInterfaces for %s",
+      joint_names_[i].c_str());
 
     command_interfaces.emplace_back(
       hardware_interface::CommandInterface(

@@ -388,7 +388,8 @@ public:
     return comm::datalayer::DlResult::DL_OK;
   }
 
-  std::unordered_map<std::string, SharedMemoryVariable> getVariables(){
+  std::unordered_map<std::string, SharedMemoryVariable> getVariables()
+  {
     return variables_;
   }
 

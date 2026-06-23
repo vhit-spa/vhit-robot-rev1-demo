@@ -7,6 +7,15 @@
 
 namespace vhit_robot_driver
 {
+
+struct JointDatalayerMapping
+{
+  std::string joint_name;
+  std::string ethercat_node;
+  std::string actual_position_variable; // ELAC.../PdoTx...
+  std::string target_position_variable; // ELAC.../PdoRx...
+};
+
 class VhitRobotHardwareInterface : public hardware_interface::SystemInterface
 {
 public:
@@ -62,8 +71,7 @@ protected:
   const std::string g_positionActualValuePDO_ = "PdoTx1_MappingParameters.Position_Actual_Value";
   const std::string g_positionTargetValuePDO_ = "PdoRx1_MappingParameters.Target_Position";
 
-  std::unordered_map<std::string, std::string> state_interfaces_to_dl_states_;
-  std::unordered_map<std::string, std::string> command_interfaces_to_dl_commands_;
+  std::vector<JointDatalayerMapping> joint_dl_mappings_;
 };
 
 }  // namespace vhit_robot_driver
