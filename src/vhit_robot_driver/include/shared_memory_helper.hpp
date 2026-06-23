@@ -11,42 +11,88 @@
 #include <sstream>
 #include <utility>
 #include <thread>
+#include <iostream>
 
 #include "comm/datalayer/datalayer.h"
 #include "comm/datalayer/datalayer_system.h"
 #include "comm/datalayer/memory_map_generated.h"
 
+/**
+ * @brief Metadata and cached value for one ctrlX Data Layer shared-memory variable.
+ *
+ * The memory map reports variable offsets and sizes in bits. This helper keeps
+ * the original bit-level metadata, exposes byte/bit convenience accessors, and
+ * stores the last value read from or staged for the shared-memory area.
+ */
 struct SharedMemoryVariable
 {
+  /// Variable name from the Data Layer memory map.
   std::string name;
+
+  /// Data Layer PLC type string, for example comm::datalayer::TYPE_PLC_DINT.
   std::string type;
 
+  /// Offset of the variable from the beginning of the memory area, in bits.
   uint32_t bit_offset = 0;  // Offset in bits
+
+  /// Size of the variable in bits.
   uint32_t bit_size = 0;    // Size in bits
 
-  // Rightshift by 3 is equal to deviding by 8, gives the byte offset
+  /**
+   * @brief Return the byte index that contains the start of this variable.
+   * @return Zero-based byte offset from the beginning of the memory area.
+   */
   uint32_t byte_index() const
   {
     return bit_offset >> 3;
   }
-  // And with 7 gives the reminder of division by 8, gives the bit offset
+
+  /**
+   * @brief Return the bit index within the starting byte.
+   * @return Bit offset in the range [0, 7].
+   */
   uint8_t bit_index() const
   {
     return bit_offset & 7;
   }
 
+  /**
+   * @brief Check whether the variable starts on a byte boundary.
+   * @return True when bit_offset is evenly divisible by eight.
+   */
   bool is_byte_aligned() const
   {
     return (bit_offset & 7) == 0;
   }
 
+  /// Last cached numeric value for this variable.
   double value = std::numeric_limits<double>::quiet_NaN();
+
+  /// True when value matches the last successful read or write operation.
   bool uptodate = false;
 };
 
+/**
+ * @brief Access helper for one ctrlX Data Layer shared-memory area.
+ *
+ * SharedMemoryArea reads the Data Layer memory map, opens the corresponding
+ * shared-memory block, caches variable metadata by name, and provides typed
+ * read/write helpers for PLC DINT variables. Each operation reports a
+ * comm::datalayer::DlResult and writes a human-readable status or error message
+ * into the supplied @p what string.
+ */
 class SharedMemoryArea
 {
 public:
+  /**
+   * @brief Create a helper for a Data Layer shared-memory area.
+   * @param datalayerSystem Data Layer system used to open the memory user.
+   * @param client Connected Data Layer client used to read the memory map.
+   * @param address Base Data Layer address of the shared-memory area.
+   *
+   * The caller owns @p datalayerSystem and @p client and must keep both alive
+   * for the lifetime of this helper.
+   */
   SharedMemoryArea(
     comm::datalayer::DatalayerSystem * datalayerSystem,
     comm::datalayer::IClient * client,
@@ -57,6 +103,17 @@ public:
   {
   }
 
+  /**
+   * @brief Refresh the memory map and rebuild the local variable cache.
+   * @param[out] what Status or error details for logging.
+   * @return DL_OK when the map is loaded or already current; otherwise the
+   * Data Layer error that prevented the refresh.
+   *
+   * This method reads @c address_ plus @c "/map", opens the shared-memory area
+   * on first use, verifies the flatbuffer payload, retries getMemoryMap()
+   * briefly, and updates the cached revision and variable table when the map
+   * revision changes.
+   */
   comm::datalayer::DlResult refresh_map(std::string & what)
   {
     comm::datalayer::Variant variantMap;
@@ -143,6 +200,15 @@ public:
     return comm::datalayer::DlResult::DL_OK;
   }
 
+  /**
+   * @brief Read all supported variables from shared memory into the cache.
+   * @param[out] what Status or error details for logging.
+   * @return DL_OK when all supported variables are read successfully; otherwise
+   * the first Data Layer or validation error encountered.
+   *
+   * Currently only PLC DINT variables are read. Unsupported variable types are
+   * skipped.
+   */
   comm::datalayer::DlResult readVariables(std::string & what)
   {
     uint8_t * firstBytePtr;
@@ -168,6 +234,15 @@ public:
     return comm::datalayer::DlResult::DL_OK;
   }
 
+  /**
+   * @brief Write all supported cached variables to shared memory.
+   * @param[out] what Status or error details for logging.
+   * @return DL_OK when all supported variables are written successfully;
+   * otherwise the first Data Layer or validation error encountered.
+   *
+   * Currently only PLC DINT variables are written. Unsupported variable types
+   * are skipped.
+   */
   comm::datalayer::DlResult writeVariables(std::string & what)
   {
     uint8_t * firstBytePtr;
@@ -192,6 +267,16 @@ public:
     return comm::datalayer::DlResult::DL_OK;
   }
 
+  /**
+   * @brief Read one named variable directly from shared memory.
+   * @param[in] name Variable name as reported by the memory map.
+   * @param[out] value Value read from shared memory.
+   * @param[out] what Status or error details for logging.
+   * @return DL_OK on success, DL_INVALID_ADDRESS when @p name is unknown, or a
+   * Data Layer/validation error from the access attempt.
+   *
+   * The cached value for @p name is updated when the read succeeds.
+   */
   comm::datalayer::DlResult readVariable(
     const std::string & name, double & value, std::string & what)
   {
@@ -219,6 +304,18 @@ public:
     return comm::datalayer::DlResult::DL_OK;
   }
 
+  /**
+   * @brief Write one named variable directly to shared memory.
+   * @param[in] name Variable name as reported by the memory map.
+   * @param[in] value Numeric value to write. PLC DINT values are rounded and
+   * range-checked before writing.
+   * @param[out] what Status or error details for logging.
+   * @return DL_OK on success, DL_INVALID_ADDRESS when @p name is unknown, or a
+   * Data Layer/validation error from the access attempt.
+   *
+   * The cached value for @p name is updated before the write attempt and marked
+   * up to date when the write succeeds.
+   */
   comm::datalayer::DlResult writeVariable(
     const std::string & name, double value, std::string & what)
   {
@@ -248,6 +345,13 @@ public:
     return comm::datalayer::DlResult::DL_OK;
   }
 
+  /**
+   * @brief Return the cached value for a named variable without reading memory.
+   * @param[in] name Variable name as reported by the memory map.
+   * @param[out] value Cached value for @p name.
+   * @param[out] what Status or error details for logging.
+   * @return DL_OK on success or DL_INVALID_ADDRESS when @p name is unknown.
+   */
   comm::datalayer::DlResult getVariableValue(
     const std::string & name, double & value, std::string & what) const
   {
@@ -262,6 +366,13 @@ public:
     return comm::datalayer::DlResult::DL_OK;
   }
 
+  /**
+   * @brief Stage a cached value for a named variable without writing memory.
+   * @param[in] name Variable name as reported by the memory map.
+   * @param[in] value Value to cache for a later writeVariables() call.
+   * @param[out] what Status or error details for logging.
+   * @return DL_OK on success or DL_INVALID_ADDRESS when @p name is unknown.
+   */
   comm::datalayer::DlResult setVariableValue(
     const std::string & name, double value, std::string & what)
   {
@@ -277,7 +388,18 @@ public:
     return comm::datalayer::DlResult::DL_OK;
   }
 
+  std::unordered_map<std::string, SharedMemoryVariable> getVariables(){
+    return variables_;
+  }
+
 private:
+  /**
+   * @brief Read one validated PLC DINT from an active memory access window.
+   * @param[in,out] var Variable metadata and cached value to update.
+   * @param[in] firstBytePtr Pointer returned by IMemoryUser::beginAccess().
+   * @param[out] what Error details when validation fails.
+   * @return DL_OK on success or a validation error.
+   */
   comm::datalayer::DlResult readVariableFromMemory(
     SharedMemoryVariable & var, const uint8_t * firstBytePtr, std::string & what)
   {
@@ -293,6 +415,13 @@ private:
     return comm::datalayer::DlResult::DL_OK;
   }
 
+  /**
+   * @brief Write one validated PLC DINT into an active memory access window.
+   * @param[in,out] var Variable metadata and cached value to write.
+   * @param[in,out] firstBytePtr Pointer returned by IMemoryUser::beginAccess().
+   * @param[out] what Error details when validation or conversion fails.
+   * @return DL_OK on success or a validation/conversion error.
+   */
   comm::datalayer::DlResult writeVariableToMemory(
     SharedMemoryVariable & var, uint8_t * firstBytePtr, std::string & what)
   {
@@ -323,6 +452,14 @@ private:
     return comm::datalayer::DlResult::DL_OK;
   }
 
+  /**
+   * @brief Validate that a mapped variable can be accessed as a PLC DINT.
+   * @param[in] var Variable metadata to validate.
+   * @param[in] operation Operation name used in error messages.
+   * @param[out] what Error details when validation fails.
+   * @return DL_OK when @p var is a byte-aligned 32-bit PLC DINT; otherwise a
+   * Data Layer validation error.
+   */
   comm::datalayer::DlResult validateDintVariable(
     const SharedMemoryVariable & var, const std::string & operation, std::string & what) const
   {

@@ -157,7 +157,7 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_configure(
   // If datalayer works, initialize the shared memory maps
   readMemoryArea = std::make_unique<SharedMemoryArea>(
     datalayer_.get(), client_, g_ethercatReadingArea);
-  readMemoryArea = std::make_unique<SharedMemoryArea>(
+  writeMemoryArea = std::make_unique<SharedMemoryArea>(
     datalayer_.get(), client_, g_ethercatWritingArea);
     
   // Get memory mappings
@@ -183,6 +183,7 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_configure(
     rclcpp::get_logger("VhitRobotHardwareInterface"), what.c_str());
 
   // Interface states - Datalayer mapping
+  // auto dlReadVariables = readMemoryArea->getVariables();
   // for (auto & [name, dl_type] : state_interfaces_to_dl_states_) {
   //   RCLCPP_INFO(
   //     rclcpp::get_logger(
@@ -334,19 +335,19 @@ std::vector<hardware_interface::StateInterface> VhitRobotHardwareInterface::expo
     full_variable_address = g_ethercatReadingArea + "/map/" + elac_mapping_node + "/" +
       g_positionActualValuePDO;
 
-    state_interfaces_to_dl_states_.emplace(
-      std::make_pair(
-        joint_names_[i],
-        DatalayerType(
-          std::numeric_limits<double>::quiet_NaN(), comm::datalayer::VariantType::INT32,
-          full_variable_address))
-    );
+    // state_interfaces_to_dl_states_.emplace(
+    //   std::make_pair(
+    //     joint_names_[i],
+    //     DatalayerType(
+    //       std::numeric_limits<double>::quiet_NaN(), comm::datalayer::VariantType::INT32,
+    //       full_variable_address))
+    // );
 
-    RCLCPP_INFO(
-      rclcpp::get_logger(
-        "VhitRobotHardwareInterface"), "creating a position StateInteface for type <INT32> that maps from [%s, %s]",
-      full_variable_address.c_str(), state_interfaces_to_dl_states_.at(
-        joint_names_[i]).address().c_str());
+    // RCLCPP_INFO(
+    //   rclcpp::get_logger(
+    //     "VhitRobotHardwareInterface"), "creating a position StateInteface for type <INT32> that maps from [%s, %s]",
+    //   full_variable_address.c_str(), state_interfaces_to_dl_states_.at(
+    //     joint_names_[i]).address().c_str());
 
     state_interfaces.emplace_back(
       hardware_interface::StateInterface(
@@ -381,19 +382,19 @@ export_command_interfaces()
     full_variable_address = g_ethercatWritingArea + "/map/" + elac_mapping_node + "/" +
       g_positionTargetValuePDO;
 
-    command_interfaces_to_dl_commands_.emplace(
-      std::make_pair(
-        joint_names_[i],
-        DatalayerType(
-          std::numeric_limits<double>::quiet_NaN(), comm::datalayer::VariantType::INT32,
-          full_variable_address))
-    );
+    // command_interfaces_to_dl_commands_.emplace(
+    //   std::make_pair(
+    //     joint_names_[i],
+    //     DatalayerType(
+    //       std::numeric_limits<double>::quiet_NaN(), comm::datalayer::VariantType::INT32,
+    //       full_variable_address))
+    // );
 
-    RCLCPP_INFO(
-      rclcpp::get_logger(
-        "VhitRobotHardwareInterface"), "creating a position CommandInterface for type <INT32> that maps from [%s, %s]",
-      full_variable_address.c_str(), command_interfaces_to_dl_commands_.at(
-        joint_names_[i]).address().c_str());
+    // RCLCPP_INFO(
+    //   rclcpp::get_logger(
+    //     "VhitRobotHardwareInterface"), "creating a position CommandInterface for type <INT32> that maps from [%s, %s]",
+    //   full_variable_address.c_str(), command_interfaces_to_dl_commands_.at(
+    //     joint_names_[i]).address().c_str());
 
     command_interfaces.emplace_back(
       hardware_interface::CommandInterface(

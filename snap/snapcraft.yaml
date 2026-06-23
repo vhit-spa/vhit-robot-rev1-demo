@@ -41,6 +41,9 @@ apps:
       - moveit-runtime
       - network
       - network-bind
+      - datalayer
+      - datalayer-shm
+      - system-files
 
 plugs:
   ros-base:

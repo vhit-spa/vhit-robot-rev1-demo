@@ -3,7 +3,6 @@
 
 #include "hardware_interface/system_interface.hpp"
 #include "ctrlx_datalayer_helper.h"
-#include "datalayer_type.hpp"
 #include "shared_memory_helper.hpp"
 
 namespace vhit_robot_driver
@@ -89,8 +88,8 @@ protected:
   const std::string g_positionActualValuePDO = "PdoTx1_MappingParameters.Position_Actual_Value";
   const std::string g_positionTargetValuePDO = "PdoRx1_MappingParameters.Target_Position";
 
-  std::unordered_map<std::string, DatalayerType> state_interfaces_to_dl_states_;
-  std::unordered_map<std::string, DatalayerType> command_interfaces_to_dl_commands_;
+  std::unordered_map<std::string, SharedMemoryVariable> state_interfaces_to_dl_states_;
+  std::unordered_map<std::string, SharedMemoryVariable> command_interfaces_to_dl_commands_;
 
   // std::unordered_map<std::string, std::string> state_interfaces_to_dl_nodes_;
   // std::unordered_map<std::string, std::string> command_interfaces_to_dl_nodes_;
