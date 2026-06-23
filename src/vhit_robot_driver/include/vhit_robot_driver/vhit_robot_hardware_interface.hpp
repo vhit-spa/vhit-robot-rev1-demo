@@ -4,6 +4,7 @@
 #include "hardware_interface/system_interface.hpp"
 #include "ctrlx_datalayer_helper.h"
 #include "datalayer_type.hpp"
+#include "shared_memory_helper.hpp"
 
 namespace vhit_robot_driver
 {
@@ -70,6 +71,8 @@ protected:
 
   std::unique_ptr<comm::datalayer::DatalayerSystem> datalayer_;
   comm::datalayer::IClient * client_;
+  std::unique_ptr<SharedMemoryArea> readMemoryArea;
+  std::unique_ptr<SharedMemoryArea> writeMemoryArea;
 
   // Datalayer addresses for passthrough controller
   const std::string g_plcControllerApplication = "plc/vhit_robot_controller";
@@ -77,11 +80,11 @@ protected:
   const std::string g_trajectoryNode = "Trajectory";
 
   // Datalayer addresses for RT comm
-  // fieldbuses/ethercat/master/instances/ethercatmaster/realtime_data/input/map
-  const std::string g_ethercatReadingMap =
-    "fieldbuses/ethercat/master/instances/ethercatmaster/realtime_data/input/map";
-  const std::string g_ethercatWritingMap =
-    "fieldbuses/ethercat/master/instances/ethercatmaster/realtime_data/output/map";
+  // fieldbuses/ethercat/master/instances/ethercatmaster/realtime_data/input
+  const std::string g_ethercatReadingArea =
+    "fieldbuses/ethercat/master/instances/ethercatmaster/realtime_data/input";
+  const std::string g_ethercatWritingArea =
+    "fieldbuses/ethercat/master/instances/ethercatmaster/realtime_data/output";
 
   const std::string g_positionActualValuePDO = "PdoTx1_MappingParameters.Position_Actual_Value";
   const std::string g_positionTargetValuePDO = "PdoRx1_MappingParameters.Target_Position";

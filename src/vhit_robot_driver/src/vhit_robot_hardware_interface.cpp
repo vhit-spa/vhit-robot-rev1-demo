@@ -154,47 +154,75 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_configure(
     return hardware_interface::CallbackReturn::FAILURE;
   }
 
-  // Interface states - Datalayer mapping
-  for (auto & [name, dl_type] : state_interfaces_to_dl_states_) {
-    RCLCPP_INFO(
-      rclcpp::get_logger(
-        "VhitRobotHardwareInterface"), "Mapping state interfaces <%s>.",
-      name.c_str());
-    comm::datalayer::Variant readVariant;
-    auto res = client_->readSync(dl_type.address(), &readVariant);
-    if (STATUS_FAILED(res)) {
+  // If datalayer works, initialize the shared memory maps
+  readMemoryArea = std::make_unique<SharedMemoryArea>(
+    datalayer_.get(), client_, g_ethercatReadingArea);
+  readMemoryArea = std::make_unique<SharedMemoryArea>(
+    datalayer_.get(), client_, g_ethercatWritingArea);
+    
+  // Get memory mappings
+  std::string what;
+  result = readMemoryArea->refresh_map(what);
+  if (STATUS_FAILED(result)) {
+    RCLCPP_ERROR(
+      rclcpp::get_logger("VhitRobotHardwareInterface"), what.c_str());
       RCLCPP_ERROR(
-        rclcpp::get_logger(
-          "VhitRobotHardwareInterface"), "Failed to get initial value for StateInterface<%s>.",
-        name.c_str());
-      return hardware_interface::CallbackReturn::ERROR;
-    }
-    RCLCPP_INFO(
-      rclcpp::get_logger(
-        "DataLayerHardwareInterface_NRT"), "Get initial values from StateInteface<%s> which is:{%f}",
-      name.c_str(), dl_type.value);
+      rclcpp::get_logger("VhitRobotHardwareInterface"), result.toString());
+    return hardware_interface::CallbackReturn::FAILURE;
   }
+  RCLCPP_INFO(
+    rclcpp::get_logger("VhitRobotHardwareInterface"), what.c_str());
 
-  // Command interfaces - Datalayer mapping
-  for (auto & [name, dl_type] : command_interfaces_to_dl_commands_) {
-    RCLCPP_INFO(
-      rclcpp::get_logger(
-        "VhitRobotHardwareInterface"), "Mapping command interfaces <%s>.",
-      name.c_str());
-    comm::datalayer::Variant readVariant;
-    auto res = client_->readSync(dl_type.address(), &readVariant);
-    if (STATUS_FAILED(res)) {
-      RCLCPP_ERROR(
-        rclcpp::get_logger(
-          "VhitRobotHardwareInterface"), "Failed to get initial value for StateInterface<%s>.",
-        name.c_str());
-      return hardware_interface::CallbackReturn::ERROR;
-    }
-    RCLCPP_INFO(
-      rclcpp::get_logger(
-        "DataLayerHardwareInterface_NRT"), "Get initial values from StateInteface<%s> which is:{%f}",
-      name.c_str(), dl_type.value);
+  result = writeMemoryArea->refresh_map(what);
+  if (STATUS_FAILED(result)) {
+    RCLCPP_ERROR(
+      rclcpp::get_logger("VhitRobotHardwareInterface"), what.c_str());
+    return hardware_interface::CallbackReturn::FAILURE;
   }
+  RCLCPP_INFO(
+    rclcpp::get_logger("VhitRobotHardwareInterface"), what.c_str());
+
+  // Interface states - Datalayer mapping
+  // for (auto & [name, dl_type] : state_interfaces_to_dl_states_) {
+  //   RCLCPP_INFO(
+  //     rclcpp::get_logger(
+  //       "VhitRobotHardwareInterface"), "Mapping state interfaces <%s>.",
+  //     name.c_str());
+  //   comm::datalayer::Variant readVariant;
+  //   auto res = client_->readSync(dl_type.address(), &readVariant);
+  //   if (STATUS_FAILED(res)) {
+  //     RCLCPP_ERROR(
+  //       rclcpp::get_logger(
+  //         "VhitRobotHardwareInterface"), "Failed to get initial value for StateInterface<%s>.",
+  //       name.c_str());
+  //     return hardware_interface::CallbackReturn::ERROR;
+  //   }
+  //   RCLCPP_INFO(
+  //     rclcpp::get_logger(
+  //       "VhitRobotHardwareInterface"), "Get initial values from StateInteface<%s> which is:{%f}",
+  //     name.c_str(), dl_type.value);
+  // }
+
+  // // Command interfaces - Datalayer mapping
+  // for (auto & [name, dl_type] : command_interfaces_to_dl_commands_) {
+  //   RCLCPP_INFO(
+  //     rclcpp::get_logger(
+  //       "VhitRobotHardwareInterface"), "Mapping command interfaces <%s>.",
+  //     name.c_str());
+  //   comm::datalayer::Variant readVariant;
+  //   auto res = client_->readSync(dl_type.address(), &readVariant);
+  //   if (STATUS_FAILED(res)) {
+  //     RCLCPP_ERROR(
+  //       rclcpp::get_logger(
+  //         "VhitRobotHardwareInterface"), "Failed to get initial value for StateInterface<%s>.",
+  //       name.c_str());
+  //     return hardware_interface::CallbackReturn::ERROR;
+  //   }
+  //   RCLCPP_INFO(
+  //     rclcpp::get_logger(
+  //       "DataLayerHardwareInterface_NRT"), "Get initial values from StateInteface<%s> which is:{%f}",
+  //     name.c_str(), dl_type.value);
+  // }
 
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -303,7 +331,7 @@ std::vector<hardware_interface::StateInterface> VhitRobotHardwareInterface::expo
 
     elac_mapping_node = info_.joints[i].parameters["DL_node"];
 
-    full_variable_address = g_ethercatReadingMap + "/" + elac_mapping_node + "/" +
+    full_variable_address = g_ethercatReadingArea + "/map/" + elac_mapping_node + "/" +
       g_positionActualValuePDO;
 
     state_interfaces_to_dl_states_.emplace(
@@ -318,7 +346,7 @@ std::vector<hardware_interface::StateInterface> VhitRobotHardwareInterface::expo
       rclcpp::get_logger(
         "VhitRobotHardwareInterface"), "creating a position StateInteface for type <INT32> that maps from [%s, %s]",
       full_variable_address.c_str(), state_interfaces_to_dl_states_.at(
-        full_variable_address).address().c_str());
+        joint_names_[i]).address().c_str());
 
     state_interfaces.emplace_back(
       hardware_interface::StateInterface(
@@ -350,7 +378,7 @@ export_command_interfaces()
 
     elac_mapping_node = info_.joints[i].parameters["DL_node"];
 
-    full_variable_address = g_ethercatWritingMap + "/" + elac_mapping_node + "/" +
+    full_variable_address = g_ethercatWritingArea + "/map/" + elac_mapping_node + "/" +
       g_positionTargetValuePDO;
 
     command_interfaces_to_dl_commands_.emplace(
@@ -365,7 +393,7 @@ export_command_interfaces()
       rclcpp::get_logger(
         "VhitRobotHardwareInterface"), "creating a position CommandInterface for type <INT32> that maps from [%s, %s]",
       full_variable_address.c_str(), command_interfaces_to_dl_commands_.at(
-        full_variable_address).address().c_str());
+        joint_names_[i]).address().c_str());
 
     command_interfaces.emplace_back(
       hardware_interface::CommandInterface(
