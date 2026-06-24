@@ -184,15 +184,16 @@ public:
       var.bit_size = variable->bitsize();
       var.type = variable->type()->str();
       variables_.emplace(var.name, var);
-      log << "Variable added " << var.name << ", ";
-      log << var.bit_offset << ", ";
-      log << var.bit_size << ", ";
-      log << var.byte_index() << ", ";
-      log << static_cast<unsigned>(var.bit_index()) << "\n";
+      log << "Variable added ";
+      log << "[name: " << var.name << ", ";
+      log << "bit offset: " << var.bit_offset << ", ";
+      log << "bit size: " << var.bit_size << ", ";
+      log << "byte_index: " << var.byte_index() << ", ";
+      log << "bit_index: " << static_cast<unsigned>(var.bit_index()) << "]\n";
     }
 
     if (!(variables_.size() > 0)) {
-      what = "Failed to refresh memory map: no variables found";
+      what = "Failed to refresh memory map: no variables found at " + mapAddress;
       return comm::datalayer::DlResult::DL_FAILED;
     }
 

@@ -13,7 +13,7 @@
     <xacro:include filename="vhit_robotics_rev_1.gazebo.xacro" />
 
     <xacro:vhit_robotics_rev_1_ros2_control 
-        name="FakeSystem" 
+        name="robot_system" 
         initial_positions_file="$(arg initial_positions_file)"
         hardware="$(arg hardware)"
         elac_mapping_file="$(arg elac_mapping_file)" />

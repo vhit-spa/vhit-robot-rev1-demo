@@ -1,6 +1,6 @@
 name: vhit-robot-rev1-demo
 
-version: '1.3.6'
+version: '1.3.8'
 
 summary: Tests MoveIt2 config for vhit robot rev1
 
@@ -45,9 +45,6 @@ apps:
       - moveit-runtime
       - network
       - network-bind
-      - datalayer
-      - datalayer-shm
-      - system-files
 
 plugs:
   ros-base:
