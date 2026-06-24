@@ -1,4 +1,4 @@
-# vHIT Robot Rev 1 Demo
+# VHIT Robot Rev 1 Demo
 
 ROS 2 Humble demo workspace for the VHIT Robot Rev 1. The repository contains the robot description, MoveIt 2 configuration, ros2_control integration, a ctrlX Data Layer hardware interface, and snap packaging for deployment on ctrlX.
 
