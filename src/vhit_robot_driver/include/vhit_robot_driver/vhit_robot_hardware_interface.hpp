@@ -12,8 +12,14 @@ struct JointDatalayerMapping
 {
   std::string joint_name;
   std::string ethercat_node;
+  double gear_ratio;
+  double feed_constant;
   std::string actual_position_variable; // ELAC.../PdoTx...
   std::string target_position_variable; // ELAC.../PdoRx...
+  /// Radians to actuator units conversion
+  double rad_to_units(double rad){ return (rad*gear_ratio*feed_constant)/(2.0*M_PI); }
+  /// Actuator units to radians conversion
+  double units_to_rad(double units){ return (units*2.0*M_PI)/(gear_ratio*feed_constant); }
 };
 
 class VhitRobotHardwareInterface : public hardware_interface::SystemInterface

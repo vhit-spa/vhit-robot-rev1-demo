@@ -56,6 +56,49 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_init(
     JointDatalayerMapping jointMapping;
     jointMapping.joint_name = joint.name;
     jointMapping.ethercat_node = joint.parameters.at("DL_node");
+
+    try
+    {
+      jointMapping.gear_ratio = std::stod(joint.parameters.at("gear_ratio"));
+    }
+    catch(const std::exception& e)
+    {
+      RCLCPP_ERROR(
+      rclcpp::get_logger(
+        "VhitRobotHardwareInterface"), "Wrong parameter 'gear_ratio' for %s",
+      joint.name.c_str());
+      return hardware_interface::CallbackReturn::FAILURE;
+    }
+
+    if (jointMapping.gear_ratio == 0.0){
+      RCLCPP_ERROR(
+      rclcpp::get_logger(
+        "VhitRobotHardwareInterface"), "Parameter 'gear_ratio' for %s can't be 0",
+      joint.name.c_str());
+      return hardware_interface::CallbackReturn::FAILURE;
+    }
+
+    try
+    {
+      jointMapping.feed_constant = std::stod(joint.parameters.at("feed_constant"));
+    }
+    catch(const std::exception& e)
+    {
+      RCLCPP_ERROR(
+      rclcpp::get_logger(
+        "VhitRobotHardwareInterface"), "Wrong parameter 'feed_constant' for %s",
+      joint.name.c_str());
+      return hardware_interface::CallbackReturn::FAILURE;
+    }
+
+    if (jointMapping.feed_constant == 0.0){
+      RCLCPP_ERROR(
+      rclcpp::get_logger(
+        "VhitRobotHardwareInterface"), "Parameter 'feed_constant' for %s can't be 0",
+      joint.name.c_str());
+      return hardware_interface::CallbackReturn::FAILURE;
+    }
+
     jointMapping.actual_position_variable = joint.parameters.at("DL_node") + "/" +
       g_positionActualValuePDO_;
     jointMapping.target_position_variable = joint.parameters.at("DL_node") + "/" +
@@ -65,7 +108,7 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_init(
 
     RCLCPP_INFO(
       rclcpp::get_logger(
-        "VhitRobotHardwareInterface"), "creating a position CommandInterface for type <INT32> that maps from [%s, %s, %s]",
+        "VhitRobotHardwareInterface"), "Creating joint to datalayer mapping from [%s, %s, %s]",
       joint.name.c_str(), jointMapping.actual_position_variable.c_str(),
       jointMapping.target_position_variable.c_str());
 
@@ -189,7 +232,7 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_configure(
   result = readMemoryArea_->refresh_map(what);
   if (STATUS_FAILED(result)) {
     RCLCPP_ERROR(
-      rclcpp::get_logger("VhitRobotHardwareInterface"), what.c_str());
+      rclcpp::get_logger("VhitRobotHardwareInterface"), "%s", what.c_str());
     RCLCPP_ERROR(
       rclcpp::get_logger("VhitRobotHardwareInterface"), result.toString());
     return hardware_interface::CallbackReturn::FAILURE;
@@ -276,6 +319,52 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_activate(
   const rclcpp_lifecycle::State & previous_state)
 {
   // Activation code here
+
+  // Initialization of state and command interfaces
+  std::string log;
+  auto res = readMemoryArea_->readVariables(log);
+  if (STATUS_FAILED(res)){
+    RCLCPP_ERROR(
+      rclcpp::get_logger("VhitRobotHardwareInterface"), "Activation failed: failed to read read memory area: %s",
+      log.c_str());
+    return hardware_interface::CallbackReturn::FAILURE;
+  }
+
+  // Update the state and command interfaces with the read values
+  for(int i = 0; i < num_joints_; i++){
+    double readPosition;
+    res = readMemoryArea_->getVariableValue(joint_dl_mappings_[i].actual_position_variable,
+      readPosition, log);
+    if (STATUS_FAILED(res)){
+      RCLCPP_ERROR(
+        rclcpp::get_logger("VhitRobotHardwareInterface"), "Activation failed: failed to read %s: %s",
+        joint_dl_mappings_[i].actual_position_variable.c_str(),
+        log.c_str());
+      return hardware_interface::CallbackReturn::FAILURE;
+    }
+    current_joint_positions_[i] = joint_dl_mappings_[i].units_to_rad(readPosition);
+    command_joint_positions_[i] = current_joint_positions_[i];
+    double writePosition = joint_dl_mappings_[i].rad_to_units(command_joint_positions_[i]);
+    res = writeMemoryArea_->setVariableValue(joint_dl_mappings_[i].target_position_variable,
+     writePosition, log);
+    if (STATUS_FAILED(res)){
+      RCLCPP_ERROR(
+        rclcpp::get_logger("VhitRobotHardwareInterface"), "Activation failed: failed to write %s: %s",
+        joint_dl_mappings_[i].target_position_variable.c_str(),
+        log.c_str());
+      return hardware_interface::CallbackReturn::FAILURE;
+    }
+  }
+
+  res = writeMemoryArea_->writeVariables(log);
+
+  if (STATUS_FAILED(res)){
+    RCLCPP_ERROR(
+      rclcpp::get_logger("VhitRobotHardwareInterface"), "Activation failed: failed to read read memory area: %s",
+      log.c_str());
+    return hardware_interface::CallbackReturn::FAILURE;
+  }
+
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
@@ -370,7 +459,27 @@ hardware_interface::return_type VhitRobotHardwareInterface::read(
 {
   // Read from hardware here
   // Read the current state of the hardware frome the datalayer
+  std::string log;
+  auto res = readMemoryArea_->readVariables(log);
+  if (STATUS_FAILED(res)){
+    RCLCPP_ERROR(
+      rclcpp::get_logger("VhitRobotHardwareInterface"), "Failed read: %s",
+      log.c_str());
+    return hardware_interface::return_type::ERROR;
+  }
   // Update the state interfaces with the read values
+  for(int i = 0; i < num_joints_; i++){
+    double readPosition;
+    res = readMemoryArea_->getVariableValue(joint_dl_mappings_[i].actual_position_variable,
+      readPosition, log);
+      if (STATUS_FAILED(res)){
+        RCLCPP_ERROR(
+          rclcpp::get_logger("VhitRobotHardwareInterface"), "Failed read: %s",
+          log.c_str());
+          return hardware_interface::return_type::ERROR;
+        }
+    current_joint_positions_[i] = joint_dl_mappings_[i].units_to_rad(readPosition);
+  }
   return hardware_interface::return_type::OK;
 }
 
@@ -379,6 +488,31 @@ hardware_interface::return_type VhitRobotHardwareInterface::write(
   const rclcpp::Duration & period)
 {
   // Write to hardware here
+  std::string log;
+  comm::datalayer::DlResult res;
+
+  // Update the command interfaces with the write values
+  for(int i = 0; i < num_joints_; i++){
+    double writePosition = joint_dl_mappings_[i].rad_to_units(command_joint_positions_[i]);
+    res = writeMemoryArea_->setVariableValue(joint_dl_mappings_[i].target_position_variable,
+     writePosition, log);
+    
+    if (STATUS_FAILED(res)){
+      RCLCPP_ERROR(
+        rclcpp::get_logger("VhitRobotHardwareInterface"), "Failed write: %s",
+        log.c_str());
+      return hardware_interface::return_type::ERROR;
+    }
+  }
+
+  res = writeMemoryArea_->writeVariables(log);
+
+  if (STATUS_FAILED(res)){
+    RCLCPP_ERROR(
+      rclcpp::get_logger("VhitRobotHardwareInterface"), "Failed write: %s",
+      log.c_str());
+    return hardware_interface::return_type::ERROR;
+  }
   return hardware_interface::return_type::OK;
 }
 

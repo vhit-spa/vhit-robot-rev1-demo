@@ -60,6 +60,8 @@ protected:
     </hardware>
     <joint name="joint1">
       <param name="DL_node">ELAC_node_LAN9253</param>
+      <param name="gear_ratio">100.0</param>
+      <param name="feed_constant">6000.0</param>
       <command_interface name="position"/>
       <state_interface name="position">
         <param name="initial_value">1.57</param>
@@ -67,6 +69,8 @@ protected:
     </joint>
     <joint name="joint2">
       <param name="DL_node">ELAC_node_LAN9253_1</param>
+      <param name="gear_ratio">100.0</param>
+      <param name="feed_constant">6000.0</param>
       <command_interface name="position"/>
       <state_interface name="position">
         <param name="initial_value">0.7854</param>
@@ -74,6 +78,8 @@ protected:
     </joint>
     <joint name="joint3">
       <param name="DL_node">ELAC_node_LAN9253</param>
+      <param name="gear_ratio">100.0</param>
+      <param name="feed_constant">6000.0</param>
       <command_interface name="position"/>
       <state_interface name="position">
         <param name="initial_value">0.7854</param>
@@ -81,6 +87,8 @@ protected:
     </joint>
     <joint name="joint4">
       <param name="DL_node">ELAC_node_LAN9253_1</param>
+      <param name="gear_ratio">100.0</param>
+      <param name="feed_constant">6000.0</param>
       <command_interface name="position"/>
       <state_interface name="position">
         <param name="initial_value">0.7854</param>
@@ -88,6 +96,8 @@ protected:
     </joint>
     <joint name="joint5">
       <param name="DL_node">ELAC_node_LAN9253</param>
+      <param name="gear_ratio">100.0</param>
+      <param name="feed_constant">6000.0</param>
       <command_interface name="position"/>
       <state_interface name="position">
         <param name="initial_value">0.7854</param>
@@ -108,6 +118,8 @@ protected:
     </hardware>
     <joint name="joint1">
       <param name="DL_node">ELAC_node_LAN9253</param>
+      <param name="gear_ratio">100.0</param>
+      <param name="feed_constant">6000.0</param>
       <command_interface name="position"/>
       <state_interface name="position">
         <param name="initial_value">1.57</param>
@@ -115,6 +127,8 @@ protected:
     </joint>
     <joint name="joint2">
       <param name="DL_node">ELAC_node_LAN9253_1</param>
+      <param name="gear_ratio">100.0</param>
+      <param name="feed_constant">6000.0</param>
       <command_interface name="position"/>
       <state_interface name="position">
         <param name="initial_value">0.7854</param>
@@ -122,6 +136,8 @@ protected:
     </joint>
     <joint name="joint3">
       <param name="DL_node">ELAC_node_LAN9253</param>
+      <param name="gear_ratio">100.0</param>
+      <param name="feed_constant">6000.0</param>
       <command_interface name="position"/>
       <state_interface name="position">
         <param name="initial_value">0.7854</param>
@@ -129,6 +145,8 @@ protected:
     </joint>
     <joint name="joint4">
       <param name="DL_node">ELAC_node_LAN9253_1</param>
+      <param name="gear_ratio">100.0</param>
+      <param name="feed_constant">6000.0</param>
       <command_interface name="position"/>
       <state_interface name="position">
         <param name="initial_value">0.7854</param>
@@ -136,6 +154,8 @@ protected:
     </joint>
     <joint name="joint5">
       <param name="DL_node">ELAC_node_LAN9253</param>
+      <param name="gear_ratio">100.0</param>
+      <param name="feed_constant">6000.0</param>
       <command_interface name="position"/>
       <state_interface name="position">
         <param name="initial_value">0.7854</param>

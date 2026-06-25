@@ -1,6 +1,21 @@
 elac_mapping:
-  elbow: "ELAC_node_LAN9253"
-  rotbase: "ELAC_node_LAN9253"
-  shoulder_joint: "ELAC_node_LAN9253"
-  wrist_pitch: "ELAC_node_LAN9253"
-  wrist_roll: "ELAC_node_LAN9253"
+  elbow: 
+    name: "ELAC_node_LAN9253"
+    gear_ratio: 100.0
+    feed_constant: 6000.0
+  rotbase:
+    name: "ELAC_node_LAN9253"
+    gear_ratio: 100.0
+    feed_constant: 6000.0
+  shoulder_joint:
+    name: "ELAC_node_LAN9253"
+    gear_ratio: 100.0
+    feed_constant: 6000.0
+  wrist_pitch:
+    name: "ELAC_node_LAN9253"
+    gear_ratio: 100.0
+    feed_constant: 6000.0
+  wrist_roll:
+    name: "ELAC_node_LAN9253"
+    gear_ratio: 100.0
+    feed_constant: 6000.0

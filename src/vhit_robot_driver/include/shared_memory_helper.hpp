@@ -69,7 +69,7 @@ struct SharedMemoryVariable
   double value = std::numeric_limits<double>::quiet_NaN();
 
   /// True when value matches the last successful read or write operation.
-  bool uptodate = false;
+  bool updated = false;
 };
 
 /**
@@ -235,8 +235,9 @@ public:
     return comm::datalayer::DlResult::DL_OK;
   }
 
-  /**
+   /**
    * @brief Write all supported cached variables to shared memory.
+   * @param force If true writes all the variables 
    * @param[out] what Status or error details for logging.
    * @return DL_OK when all supported variables are written successfully;
    * otherwise the first Data Layer or validation error encountered.
@@ -244,7 +245,7 @@ public:
    * Currently only PLC DINT variables are written. Unsupported variable types
    * are skipped.
    */
-  comm::datalayer::DlResult writeVariables(std::string & what)
+  comm::datalayer::DlResult writeVariables(std::string & what, bool force = false)
   {
     uint8_t * firstBytePtr;
     auto res = memoryUser_->beginAccess(firstBytePtr, revision_);
@@ -255,7 +256,9 @@ public:
 
     for (auto & [name, var] : variables_) {
 
-      if (var.type == comm::datalayer::TYPE_PLC_DINT) {
+      if (var.type == comm::datalayer::TYPE_PLC_DINT &&
+         (!var.updated || force) &&
+        !std::isnan(var.value)) {
         res = writeVariableToMemory(var, firstBytePtr, what);
         if (STATUS_FAILED(res)) {
           memoryUser_->endAccess();
@@ -263,7 +266,7 @@ public:
         }
       }
     }
-    what = "Variables successfulyy written";
+    what = "Variables successfully written";
     memoryUser_->endAccess();
     return comm::datalayer::DlResult::DL_OK;
   }
@@ -327,7 +330,7 @@ public:
     }
 
     var->second.value = value;
-    var->second.uptodate = false;
+    var->second.updated = false;
 
     uint8_t * firstBytePtr;
     auto res = memoryUser_->beginAccess(firstBytePtr, revision_);
@@ -384,7 +387,7 @@ public:
     }
 
     var->second.value = value;
-    var->second.uptodate = false;
+    var->second.updated = false;
     what = "Variable value set: " + name;
     return comm::datalayer::DlResult::DL_OK;
   }
@@ -413,7 +416,7 @@ private:
     int32_t raw = 0;
     std::memcpy(&raw, firstBytePtr + var.byte_index(), sizeof(raw));
     var.value = static_cast<double>(raw);
-    var.uptodate = true;
+    var.updated = true;
     return comm::datalayer::DlResult::DL_OK;
   }
 
@@ -437,6 +440,11 @@ private:
       return comm::datalayer::DlResult::DL_TYPE_MISMATCH;
     }
 
+    if (std::isnan(var.value)) {
+      what = "Invalid DINT value for " + var.name + ": not a number";
+      return comm::datalayer::DlResult::DL_TYPE_MISMATCH;
+    }
+
     const double roundedValue = std::round(var.value);
     if (roundedValue > static_cast<double>(std::numeric_limits<int32_t>::max())) {
       what = "Invalid DINT value for " + var.name + ": max exceeded";
@@ -450,7 +458,7 @@ private:
 
     const int32_t val = static_cast<int32_t>(roundedValue);
     std::memcpy(firstBytePtr + var.byte_index(), &val, sizeof(val));
-    var.uptodate = true;
+    var.updated = true;
     return comm::datalayer::DlResult::DL_OK;
   }
 
@@ -476,7 +484,6 @@ private:
         " wrong configuration.";
       return comm::datalayer::DlResult::DL_INVALID_CONFIGURATION;
     }
-
     return comm::datalayer::DlResult::DL_OK;
   }
 
