@@ -60,45 +60,39 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_init(
     jointMapping.joint_name = joint.name;
     jointMapping.ethercat_node = joint.parameters.at("DL_node");
 
-    try
-    {
+    try {
       jointMapping.gear_ratio = std::stod(joint.parameters.at("gear_ratio"));
-    }
-    catch(const std::exception& e)
-    {
+    } catch (const std::exception & e) {
       RCLCPP_ERROR(
-      rclcpp::get_logger(
-        "VhitRobotHardwareInterface"), "Wrong parameter 'gear_ratio' for %s",
-      joint.name.c_str());
+        rclcpp::get_logger(
+          "VhitRobotHardwareInterface"), "Wrong parameter 'gear_ratio' for %s",
+        joint.name.c_str());
       return hardware_interface::CallbackReturn::FAILURE;
     }
 
-    if (jointMapping.gear_ratio == 0.0){
+    if (jointMapping.gear_ratio == 0.0) {
       RCLCPP_ERROR(
-      rclcpp::get_logger(
-        "VhitRobotHardwareInterface"), "Parameter 'gear_ratio' for %s can't be 0",
-      joint.name.c_str());
+        rclcpp::get_logger(
+          "VhitRobotHardwareInterface"), "Parameter 'gear_ratio' for %s can't be 0",
+        joint.name.c_str());
       return hardware_interface::CallbackReturn::FAILURE;
     }
 
-    try
-    {
+    try {
       jointMapping.feed_constant = std::stod(joint.parameters.at("feed_constant"));
-    }
-    catch(const std::exception& e)
-    {
+    } catch (const std::exception & e) {
       RCLCPP_ERROR(
-      rclcpp::get_logger(
-        "VhitRobotHardwareInterface"), "Wrong parameter 'feed_constant' for %s",
-      joint.name.c_str());
+        rclcpp::get_logger(
+          "VhitRobotHardwareInterface"), "Wrong parameter 'feed_constant' for %s",
+        joint.name.c_str());
       return hardware_interface::CallbackReturn::FAILURE;
     }
 
-    if (jointMapping.feed_constant == 0.0){
+    if (jointMapping.feed_constant == 0.0) {
       RCLCPP_ERROR(
-      rclcpp::get_logger(
-        "VhitRobotHardwareInterface"), "Parameter 'feed_constant' for %s can't be 0",
-      joint.name.c_str());
+        rclcpp::get_logger(
+          "VhitRobotHardwareInterface"), "Parameter 'feed_constant' for %s can't be 0",
+        joint.name.c_str());
       return hardware_interface::CallbackReturn::FAILURE;
     }
 
@@ -302,7 +296,8 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_configure(
       return hardware_interface::CallbackReturn::FAILURE;
     }
     // Once we got the mapping we set the byte indexes vectors
-    writeVariableByteIndexes_[i] = writeMemoryAreaVars.at(joint_dl_mappings_[i].target_position_variable).byte_index();
+    writeVariableByteIndexes_[i] = writeMemoryAreaVars.at(
+      joint_dl_mappings_[i].target_position_variable).byte_index();
   }
 
   return hardware_interface::CallbackReturn::SUCCESS;
@@ -353,21 +348,24 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_activate(
   // Initialization of state and command interfaces
   std::string log;
   auto res = readMemoryArea_->readVariables(log);
-  if (STATUS_FAILED(res)){
+  if (STATUS_FAILED(res)) {
     RCLCPP_ERROR(
-      rclcpp::get_logger("VhitRobotHardwareInterface"), "Activation failed: failed to read read memory area: %s",
+      rclcpp::get_logger(
+        "VhitRobotHardwareInterface"), "Activation failed: failed to read read memory area: %s",
       log.c_str());
     return hardware_interface::CallbackReturn::FAILURE;
   }
 
   // Update the state and command interfaces with the read values
-  for(int i = 0; i < num_joints_; i++){
+  for (int i = 0; i < num_joints_; i++) {
     double readPosition;
-    res = readMemoryArea_->getVariableValue(joint_dl_mappings_[i].actual_position_variable,
+    res = readMemoryArea_->getVariableValue(
+      joint_dl_mappings_[i].actual_position_variable,
       readPosition, log);
-    if (STATUS_FAILED(res)){
+    if (STATUS_FAILED(res)) {
       RCLCPP_ERROR(
-        rclcpp::get_logger("VhitRobotHardwareInterface"), "Activation failed: failed to read %s: %s",
+        rclcpp::get_logger(
+          "VhitRobotHardwareInterface"), "Activation failed: failed to read %s: %s",
         joint_dl_mappings_[i].actual_position_variable.c_str(),
         log.c_str());
       return hardware_interface::CallbackReturn::FAILURE;
@@ -375,11 +373,13 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_activate(
     current_joint_positions_[i] = joint_dl_mappings_[i].units_to_rad(readPosition);
     command_joint_positions_[i] = current_joint_positions_[i];
     double writePosition = joint_dl_mappings_[i].rad_to_units(command_joint_positions_[i]);
-    res = writeMemoryArea_->setVariableValue(joint_dl_mappings_[i].target_position_variable,
-     writePosition, log);
-    if (STATUS_FAILED(res)){
+    res = writeMemoryArea_->setVariableValue(
+      joint_dl_mappings_[i].target_position_variable,
+      writePosition, log);
+    if (STATUS_FAILED(res)) {
       RCLCPP_ERROR(
-        rclcpp::get_logger("VhitRobotHardwareInterface"), "Activation failed: failed to write %s: %s",
+        rclcpp::get_logger(
+          "VhitRobotHardwareInterface"), "Activation failed: failed to write %s: %s",
         joint_dl_mappings_[i].target_position_variable.c_str(),
         log.c_str());
       return hardware_interface::CallbackReturn::FAILURE;
@@ -388,9 +388,10 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_activate(
 
   res = writeMemoryArea_->writeVariables(log);
 
-  if (STATUS_FAILED(res)){
+  if (STATUS_FAILED(res)) {
     RCLCPP_ERROR(
-      rclcpp::get_logger("VhitRobotHardwareInterface"), "Activation failed: failed to read read memory area: %s",
+      rclcpp::get_logger(
+        "VhitRobotHardwareInterface"), "Activation failed: failed to read read memory area: %s",
       log.c_str());
     return hardware_interface::CallbackReturn::FAILURE;
   }
@@ -489,28 +490,25 @@ hardware_interface::return_type VhitRobotHardwareInterface::read(
 {
   uint8_t * firstBytePtr = nullptr;
   auto res = readMemoryArea_->beginAccessRt(firstBytePtr);
-  if (res != comm::datalayer::DlResult::DL_OK)
-  {
-    if (res == comm::datalayer::DlResult::DL_RT_WOULD_BLOCK && blocking_reads_count_ < 10)
-    {
+  if (res != comm::datalayer::DlResult::DL_OK) {
+    if (res == comm::datalayer::DlResult::DL_RT_WOULD_BLOCK && blocking_reads_count_ < 10) {
       blocking_reads_count_++;
       return hardware_interface::return_type::OK;
     }
     return hardware_interface::return_type::ERROR;
   }
-  blocking_reads_count_ = 0;    
+  blocking_reads_count_ = 0;
 
-  for(int i = 0; i < num_joints_; i++){
+  for (int i = 0; i < num_joints_; i++) {
     int32_t val;
     readMemoryArea_->readVariableRt(readVariableByteIndexes_[i], firstBytePtr, val);
 
     current_joint_positions_[i] = joint_dl_mappings_[i].units_to_rad(static_cast<double>(val));
   }
-  if (STATUS_FAILED(readMemoryArea_->endAccessRt()))
-  {
+  if (STATUS_FAILED(readMemoryArea_->endAccessRt())) {
     return hardware_interface::return_type::ERROR;
   }
-  
+
   return hardware_interface::return_type::OK;
 }
 
@@ -520,11 +518,11 @@ hardware_interface::return_type VhitRobotHardwareInterface::write(
 {
   // Write to hardware here
   // If the previous read failed, skip the writing for the current cycle
-  if (blocking_reads_count_ > 0){
+  if (blocking_reads_count_ > 0) {
     return hardware_interface::return_type::OK;
   }
   // Validate command values
-  for(int i = 0; i < num_joints_; i++){
+  for (int i = 0; i < num_joints_; i++) {
     const double writePosition = joint_dl_mappings_[i].rad_to_units(command_joint_positions_[i]);
     if (!std::isfinite(writePosition)) {
       return hardware_interface::return_type::ERROR;
@@ -545,10 +543,8 @@ hardware_interface::return_type VhitRobotHardwareInterface::write(
   // Update the command interfaces with the write values
   uint8_t * firstBytePtr = nullptr;
   auto res = writeMemoryArea_->beginAccessRt(firstBytePtr);
-  if (res != comm::datalayer::DlResult::DL_OK)
-  {
-    if (res == comm::datalayer::DlResult::DL_RT_WOULD_BLOCK && blocking_writes_count_ < 10)
-    {
+  if (res != comm::datalayer::DlResult::DL_OK) {
+    if (res == comm::datalayer::DlResult::DL_RT_WOULD_BLOCK && blocking_writes_count_ < 10) {
       blocking_writes_count_++;
       return hardware_interface::return_type::OK;
     }
@@ -556,11 +552,12 @@ hardware_interface::return_type VhitRobotHardwareInterface::write(
   }
   blocking_writes_count_ = 0;
   // Validate command values
-  for(int i = 0; i < num_joints_; i++){
-    writeMemoryArea_->writeVariableRt(writeVariableByteIndexes_[i], firstBytePtr, writeVariableValues_[i]);
+  for (int i = 0; i < num_joints_; i++) {
+    writeMemoryArea_->writeVariableRt(
+      writeVariableByteIndexes_[i], firstBytePtr,
+      writeVariableValues_[i]);
   }
-  if (STATUS_FAILED(writeMemoryArea_->endAccessRt()))
-  {
+  if (STATUS_FAILED(writeMemoryArea_->endAccessRt())) {
     return hardware_interface::return_type::ERROR;
   }
   return hardware_interface::return_type::OK;

@@ -17,6 +17,7 @@ find_package(rclcpp_lifecycle REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
   src/vhit_robot_hardware_interface.cpp
+  src/shared_memory_helper.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
