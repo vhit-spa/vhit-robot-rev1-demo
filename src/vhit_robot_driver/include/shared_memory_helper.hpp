@@ -392,6 +392,52 @@ public:
     return variables_;
   }
 
+  const comm::datalayer::DlResult beginAccessRt(uint8_t * & firstBytePtr)
+  {
+    firstBytePtr = DL_RT_NON_BLOCKING;
+    return memoryUser_->beginAccess(firstBytePtr, revision_);
+  }
+
+  const comm::datalayer::DlResult endAccessRt()
+  {
+    return memoryUser_->endAccess();
+  }
+
+  void readVariableRt(const uint32_t byteIndex, const uint8_t * firstBytePtr, int32_t & val)
+  {
+    std::memcpy(&val, firstBytePtr + byteIndex, sizeof(val));
+  }
+
+  void writeVariableRt(const uint32_t byteIndex, uint8_t * firstBytePtr, const int32_t & val)
+  {
+    std::memcpy(firstBytePtr + byteIndex, &val, sizeof(val));
+  }
+
+  /**
+   * @brief Validate that a mapped variable can be accessed as a PLC DINT.
+   * @param[in] var Variable metadata to validate.
+   * @param[in] operation Operation name used in error messages.
+   * @param[out] what Error details when validation fails.
+   * @return DL_OK when @p var is a byte-aligned 32-bit PLC DINT; otherwise a
+   * Data Layer validation error.
+   */
+  comm::datalayer::DlResult validateDintVariable(
+    const SharedMemoryVariable & var, const std::string & operation, std::string & what) const
+  {
+    if (var.type != comm::datalayer::TYPE_PLC_DINT) {
+      what = "Failed to " + operation + " variable from " + address_ + ": " + var.name +
+        " unsupported type.";
+      return comm::datalayer::DlResult::DL_TYPE_MISMATCH;
+    }
+
+    if (!var.is_byte_aligned() || var.bit_size != 32) {
+      what = "Failed to " + operation + " variable from " + address_ + ": " + var.name +
+        " wrong configuration.";
+      return comm::datalayer::DlResult::DL_INVALID_CONFIGURATION;
+    }
+    return comm::datalayer::DlResult::DL_OK;
+  }
+
 private:
   /**
    * @brief Read one validated PLC DINT from an active memory access window.
@@ -454,31 +500,6 @@ private:
     const int32_t val = static_cast<int32_t>(roundedValue);
     std::memcpy(firstBytePtr + var.byte_index(), &val, sizeof(val));
     var.updated = true;
-    return comm::datalayer::DlResult::DL_OK;
-  }
-
-  /**
-   * @brief Validate that a mapped variable can be accessed as a PLC DINT.
-   * @param[in] var Variable metadata to validate.
-   * @param[in] operation Operation name used in error messages.
-   * @param[out] what Error details when validation fails.
-   * @return DL_OK when @p var is a byte-aligned 32-bit PLC DINT; otherwise a
-   * Data Layer validation error.
-   */
-  comm::datalayer::DlResult validateDintVariable(
-    const SharedMemoryVariable & var, const std::string & operation, std::string & what) const
-  {
-    if (var.type != comm::datalayer::TYPE_PLC_DINT) {
-      what = "Failed to " + operation + " variable from " + address_ + ": " + var.name +
-        " unsupported type.";
-      return comm::datalayer::DlResult::DL_TYPE_MISMATCH;
-    }
-
-    if (!var.is_byte_aligned() || var.bit_size != 32) {
-      what = "Failed to " + operation + " variable from " + address_ + ": " + var.name +
-        " wrong configuration.";
-      return comm::datalayer::DlResult::DL_INVALID_CONFIGURATION;
-    }
     return comm::datalayer::DlResult::DL_OK;
   }
 

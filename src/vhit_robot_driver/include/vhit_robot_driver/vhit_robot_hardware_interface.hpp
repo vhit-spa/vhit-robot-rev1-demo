@@ -78,6 +78,16 @@ protected:
   const std::string g_positionTargetValuePDO_ = "PdoRx1_MappingParameters.Target_Position";
 
   std::vector<JointDatalayerMapping> joint_dl_mappings_;
+
+  // Realtime stuff
+  std::vector<std::uint32_t> readVariableByteIndexes_;
+  std::vector<std::uint32_t> writeVariableByteIndexes_;
+  std::vector<std::int32_t> writeVariableValues_;
+
+  uint8_t blocking_reads_count_ = 0;
+  uint8_t blocking_writes_count_ = 0;
+  // Error codes
+  int32_t errorCode_ = 0;
 };
 
 }  // namespace vhit_robot_driver
