@@ -192,11 +192,6 @@ public:
       log << "bit_index: " << static_cast<unsigned>(var.bit_index()) << "]\n";
     }
 
-    if (!(variables_.size() > 0)) {
-      what = "Failed to refresh memory map: no variables found at " + mapAddress;
-      return comm::datalayer::DlResult::DL_FAILED;
-    }
-
     what = log.str();
     return comm::datalayer::DlResult::DL_OK;
   }
@@ -237,7 +232,7 @@ public:
 
    /**
    * @brief Write all supported cached variables to shared memory.
-   * @param force If true writes all the variables 
+   * @param force If true writes all the variables
    * @param[out] what Status or error details for logging.
    * @return DL_OK when all supported variables are written successfully;
    * otherwise the first Data Layer or validation error encountered.

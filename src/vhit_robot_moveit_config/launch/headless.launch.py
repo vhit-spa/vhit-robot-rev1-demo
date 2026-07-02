@@ -140,6 +140,11 @@ def generate_launch_description():
         parameters=[
             robot_description,
             ros2_controllers_path,
+            {
+                "lock_memory": True,
+                "cpu_affinity": [1],
+                "thread_priority": 50,
+            }
         ],
         output="screen",
     )

@@ -233,21 +233,19 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_configure(
   if (STATUS_FAILED(result)) {
     RCLCPP_ERROR(
       rclcpp::get_logger("VhitRobotHardwareInterface"), "%s", what.c_str());
-    RCLCPP_ERROR(
-      rclcpp::get_logger("VhitRobotHardwareInterface"), result.toString());
     return hardware_interface::CallbackReturn::FAILURE;
   }
   RCLCPP_INFO(
-    rclcpp::get_logger("VhitRobotHardwareInterface"), what.c_str());
+    rclcpp::get_logger("VhitRobotHardwareInterface"), "%s", what.c_str());
 
   result = writeMemoryArea_->refresh_map(what);
   if (STATUS_FAILED(result)) {
     RCLCPP_ERROR(
-      rclcpp::get_logger("VhitRobotHardwareInterface"), what.c_str());
+      rclcpp::get_logger("VhitRobotHardwareInterface"), "%s", what.c_str());
     return hardware_interface::CallbackReturn::FAILURE;
   }
   RCLCPP_INFO(
-    rclcpp::get_logger("VhitRobotHardwareInterface"), what.c_str());
+    rclcpp::get_logger("VhitRobotHardwareInterface"), "%s", what.c_str());
 
   // Interface states - Datalayer mapping
   // Check correspondence between state_interfaces_to_dl_states_ and SharedMemoryVariable
