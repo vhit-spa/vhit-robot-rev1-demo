@@ -91,6 +91,24 @@ static std::string getConnectionString(
   return connectionString + std::string("?sslport=") + std::to_string(sslPort);
 }
 
+//! Get Datalayer Client instance using an explicit connection string
+//! @param[in] datalayerSystem Datalayer.System instance
+//! @param[in] connectionString Complete Data Layer connection string, e.g. ipc://
+//! @result IClient instance or nullptr on error
+static comm::datalayer::IClient * getClientByConnectionString(
+  comm::datalayer::DatalayerSystem & datalayerSystem,
+  const std::string & connectionString)
+{
+  comm::datalayer::IClient * client = datalayerSystem.factory()->createClient(connectionString);
+  if (client->isConnected()) {
+    return client;
+  }
+
+  delete client;
+
+  return nullptr;
+}
+
 //! Get Datalayer Client instance
 //! @param[in] datalayerSystem Datalayer.System instance
 //! @param[in] ip       IP address of the ctrlX CORE: 10.0.2.2 is ctrlX COREvirtual with port forwarding
@@ -105,14 +123,7 @@ static comm::datalayer::IClient * getClient(
   const std::string & password = "boschrexroth", int sslPort = 443)
 {
   std::string connectionString = getConnectionString(ip, user, password, sslPort);
-  comm::datalayer::IClient * client = datalayerSystem.factory()->createClient(connectionString);
-  if (client->isConnected()) {
-    return client;
-  }
-
-  delete client;
-
-  return nullptr;
+  return getClientByConnectionString(datalayerSystem, connectionString);
 }
 
 //! Get Datalayer Provider instance

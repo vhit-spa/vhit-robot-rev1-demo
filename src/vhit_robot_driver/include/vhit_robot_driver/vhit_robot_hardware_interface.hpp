@@ -61,6 +61,7 @@ protected:
   std::string ip_address_;
   std::string username_;
   std::string password_;
+  std::string connection_string_;
   int ssl_port_;
 
   std::unique_ptr<comm::datalayer::DatalayerSystem> datalayer_;

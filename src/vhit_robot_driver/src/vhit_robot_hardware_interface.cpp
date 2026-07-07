@@ -136,6 +136,12 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_init(
   } else {
     ssl_port_ = 8443;
   }
+  auto connection_string_param_it = info_.hardware_parameters.find("connection_string");
+  if (connection_string_param_it != info_.hardware_parameters.end()) {
+    connection_string_ = connection_string_param_it->second;
+  } else {
+    connection_string_.clear();
+  }
 
   datalayer_ = std::make_unique<comm::datalayer::DatalayerSystem>();
 
@@ -166,8 +172,15 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_configure(
 
   datalayer_->start(false);
 
-  // If running in snap environment, use IPC connection, otherwise use TCP connection with provided parameters
-  if (isSnap()) {
+  if (!connection_string_.empty()) {
+    RCLCPP_INFO(
+      rclcpp::get_logger("VhitRobotHardwareInterface"),
+      "Using explicit Data Layer connection string: %s",
+      connection_string_.c_str());
+    client_ = getClientByConnectionString(*datalayer_, connection_string_);
+
+  } else if (isSnap()) {
+    // If running in snap environment, use IPC connection, otherwise use TCP connection with provided parameters
     RCLCPP_INFO(
       rclcpp::get_logger("VhitRobotHardwareInterface"),
       "Running in snap environment, using IPC connection to ctrlX CORE");

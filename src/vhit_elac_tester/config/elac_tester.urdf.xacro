@@ -2,6 +2,7 @@
 <robot name="elac_tester" xmlns:xacro="http://www.ros.org/wiki/xacro">
   <xacro:arg name="hardware" default="real"/>
   <xacro:arg name="dl_node" default="ELAC_node_LAN9253"/>
+  <xacro:arg name="connection_string" default=""/>
   <xacro:arg name="initial_position" default="0.0"/>
   <xacro:property name="selected_hardware" value="$(arg hardware)"/>
 
@@ -48,6 +49,7 @@
     <xacro:if value="${selected_hardware == 'real'}">
       <hardware>
         <plugin>vhit_robot_driver/VhitRobotHardwareInterface</plugin>
+        <param name="connection_string">$(arg connection_string)</param>
       </hardware>
     </xacro:if>
 

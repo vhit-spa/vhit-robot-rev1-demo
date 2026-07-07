@@ -33,6 +33,9 @@ def launch_setup(context, *args, **kwargs):
     if not use_mock_hardware:
         xacro_mappings["hardware"] = "real"
         xacro_mappings["dl_node"] = LaunchConfiguration("dl_node").perform(context)
+        xacro_mappings["connection_string"] = LaunchConfiguration(
+            "connection_string"
+        ).perform(context)
 
     robot_description_config = xacro.process_file(xacro_file, mappings=xacro_mappings)
     robot_description = {"robot_description": robot_description_config.toxml()}
@@ -126,6 +129,11 @@ def generate_launch_description():
                 "dl_node",
                 default_value="ELAC_node_LAN9253",
                 description="ctrlX Data Layer ELAC node name for real hardware.",
+            ),
+            DeclareLaunchArgument(
+                "connection_string",
+                default_value="",
+                description="Optional explicit ctrlX Data Layer connection string, e.g. ipc://.",
             ),
             DeclareLaunchArgument(
                 "use_mock_hardware",
