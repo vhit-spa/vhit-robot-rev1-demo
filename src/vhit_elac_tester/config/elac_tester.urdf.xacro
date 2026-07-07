@@ -55,8 +55,8 @@
 
     <joint name="elac_node">
       <param name="DL_node">$(arg dl_node)</param>
-      <param name="gear_ratio">1.0</param>
-      <param name="feed_constant">1.0</param>
+      <param name="gear_ratio">100.0</param>
+      <param name="feed_constant">6000.0</param>
       <command_interface name="position"/>
       <state_interface name="position">
         <param name="initial_value">$(arg initial_position)</param>

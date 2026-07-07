@@ -10,6 +10,7 @@ Each ROS package has its own README:
 - [vhit_robot_moveit_config](src/vhit_robot_moveit_config/README.md): MoveIt 2, xacro, controller, and launch configuration.
 - [vhit_robot_driver](src/vhit_robot_driver/README.md): ros2_control hardware plugin, Data Layer parameters, TCP access, and shared-memory notes.
 - [vhit_passthrough_controller](src/vhit_passthrough_controller/README.md): custom ros2_control controller plugin scaffold.
+- [vhit_elac_tester](src/vhit_elac_tester/README.md): standalone single-joint ELAC controller tester for mock hardware, real hardware, and the standalone mock Data Layer.
 
 ## Repository Layout
 
@@ -26,7 +27,8 @@ Each ROS package has its own README:
     ├── vhit_robot_demo/
     ├── vhit_robot_moveit_config/
     ├── vhit_robot_driver/
-    └── vhit_passthrough_controller/
+    ├── vhit_passthrough_controller/
+    └── vhit_elac_tester/
 ```
 
 ## Local Hardware Build And Run
@@ -72,6 +74,10 @@ Important Data Layer limitation for local runs:
 - A typical symptom is `DL_RT_INVALIDMEMORYMAP` even after the Data Layer client successfully connects.
 
 For the in-depth driver behavior and connection parameters, see the [vhit_robot_driver README](src/vhit_robot_driver/README.md).
+
+For a smaller single-joint controller test, including offline mock hardware and
+the standalone `vhit_mock_datalayer` workflow, see the
+[vhit_elac_tester README](src/vhit_elac_tester/README.md).
 
 ## Snap Build And Run
 
@@ -172,7 +178,7 @@ Run package tests after building:
 
 ```bash
 source install/setup.bash
-colcon test --packages-select vhit_robot_driver vhit_passthrough_controller
+colcon test --packages-select vhit_robot_driver vhit_passthrough_controller vhit_elac_tester
 colcon test-result --verbose
 ```
 
@@ -182,4 +188,3 @@ colcon test-result --verbose
 - Keep URDF joints, SRDF groups, controller YAML, `elac_mapping.yaml`, and hardware-interface joint names synchronized.
 - ros2_control loads every `<ros2_control>` block present in the final expanded `robot_description`.
 - `headless.launch.py` is the primary maintained runtime launch for this demo.
-
