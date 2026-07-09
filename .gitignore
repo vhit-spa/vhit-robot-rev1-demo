@@ -18,7 +18,3 @@ __pycache__/
 
 # VS Code
 .vscode/
-
-# Ignoring mesh files
-*.part
-*.stl
