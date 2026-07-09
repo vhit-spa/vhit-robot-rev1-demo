@@ -17,6 +17,7 @@
 #include <gmock/gmock.h>
 
 #include <cmath>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -26,6 +27,8 @@
 #include "hardware_interface/resource_manager.hpp"
 #include "hardware_interface/types/lifecycle_state_names.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
+#include "rclcpp/clock.hpp"
+#include "rclcpp/logger.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 #include "ros2_control_test_assets/components_urdfs.hpp"
 #include "ros2_control_test_assets/descriptions.hpp"
@@ -35,6 +38,23 @@ namespace
 const auto TIME = rclcpp::Time(0);
 const auto PERIOD = rclcpp::Duration::from_seconds(0.1);  // 0.1 seconds for easier math
 const auto COMPARE_DELTA = 0.0001;
+const auto vhit_robot_urdf_extra_joints = std::string(
+  R"(
+  <joint name="joint4" type="revolute">
+    <origin rpy="0 0 0" xyz="0 0 0.9"/>
+    <parent link="link3"/>
+    <child link="link4"/>
+    <limit effort="0.1" lower="-3.14159265359" upper="3.14159265359" velocity="0.2"/>
+  </joint>
+  <link name="link4"/>
+  <joint name="joint5" type="revolute">
+    <origin rpy="0 0 0" xyz="0 0 0.9"/>
+    <parent link="link4"/>
+    <child link="link5"/>
+    <limit effort="0.1" lower="-3.14159265359" upper="3.14159265359" velocity="0.2"/>
+  </joint>
+  <link name="link5"/>
+)");
 }  // namespace
 
 class TestGenericSystem : public ::testing::Test
@@ -178,14 +198,24 @@ class ResourceStorage;
 class TestableResourceManager : public hardware_interface::ResourceManager
 {
 public:
-  friend TestGenericSystem;
+  explicit TestableResourceManager(const std::string & urdf)
+  : hardware_interface::ResourceManager(
+      urdf, std::make_shared<rclcpp::Clock>(), rclcpp::get_logger("test_resource_manager"))
+  {
+  }
 
-  TestableResourceManager()
-  : hardware_interface::ResourceManager() {}
+  explicit TestableResourceManager(rclcpp::Node::SharedPtr node)
+  : hardware_interface::ResourceManager(
+      node->get_node_clock_interface(), node->get_node_logging_interface())
+  {
+  }
 
-  TestableResourceManager(
-    const std::string & urdf, bool validate_interfaces = true, bool activate_all = false)
-  : hardware_interface::ResourceManager(urdf, validate_interfaces, activate_all)
+  explicit TestableResourceManager(
+    rclcpp::Node::SharedPtr node, const std::string & urdf, bool activate_all = false,
+    unsigned int cm_update_rate = 100)
+  : hardware_interface::ResourceManager(
+      urdf, node->get_node_clock_interface(), node->get_node_logging_interface(), activate_all,
+      cm_update_rate)
   {
   }
 };
@@ -229,8 +259,8 @@ auto deactivate_components = [](
 
 TEST_F(TestGenericSystem, load_generic_system_)
 {
-  auto urdf = ros2_control_test_assets::urdf_head + hardware_system_ +
-    ros2_control_test_assets::urdf_tail;
+  auto urdf = ros2_control_test_assets::urdf_head + vhit_robot_urdf_extra_joints +
+    hardware_system_ + ros2_control_test_assets::urdf_tail;
   try {
     TestableResourceManager rm(urdf);
   } catch (const std::exception & e) {
@@ -242,6 +272,7 @@ TEST_F(TestGenericSystem, load_generic_system_)
 TEST_F(TestGenericSystem, activate_generic_system_)
 {
   auto urdf = ros2_control_test_assets::urdf_head +
+    vhit_robot_urdf_extra_joints +
     hardware_system_ +
     ros2_control_test_assets::urdf_tail;
 

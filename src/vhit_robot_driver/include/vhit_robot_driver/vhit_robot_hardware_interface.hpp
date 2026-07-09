@@ -39,7 +39,7 @@ public:
   hardware_interface::CallbackReturn on_shutdown(const rclcpp_lifecycle::State & previous_state)
   override;
   hardware_interface::CallbackReturn on_init(
-    const hardware_interface::HardwareInfo & info) override;
+    const hardware_interface::HardwareComponentInterfaceParams & params) override;
 
   std::vector<hardware_interface::StateInterface> export_state_interfaces() override;
   std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
@@ -52,7 +52,7 @@ public:
 
 protected:
   std::vector<std::string> joint_names_;
-  std::size_t num_joints_;
+  uint8_t num_joints_;
 
   std::vector<double> command_joint_positions_;
   std::vector<double> current_joint_positions_;

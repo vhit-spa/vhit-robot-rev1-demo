@@ -20,10 +20,10 @@ namespace vhit_robot_driver
      * - Initialize communication objects (without connecting yet)
      */
 hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_init(
-  const hardware_interface::HardwareInfo & info)
+  const hardware_interface::HardwareComponentInterfaceParams & params)
 {
 
-  if (hardware_interface::SystemInterface::on_init(info) !=
+  if (hardware_interface::SystemInterface::on_init(params) !=
     hardware_interface::CallbackReturn::SUCCESS)
   {
     return hardware_interface::CallbackReturn::ERROR;
@@ -260,7 +260,7 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_configure(
   // Interface states - Datalayer mapping
   // Check correspondence between state_interfaces_to_dl_states_ and SharedMemoryVariable
   auto readMemoryAreaVars = readMemoryArea_->getVariables();
-  for (int i = 0; i < num_joints_; i++) {
+  for (uint8_t i = 0; i < num_joints_; i++) {
     // Check existence
     if (readMemoryAreaVars.find(joint_dl_mappings_[i].actual_position_variable) ==
       readMemoryAreaVars.end())
@@ -288,7 +288,7 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_configure(
   // Interface commands - Datalayer mapping
   // Check correspondence between command_interfaces_to_dl_commands_ and SharedMemoryVariable
   auto writeMemoryAreaVars = writeMemoryArea_->getVariables();
-  for (int i = 0; i < num_joints_; i++) {
+  for (uint8_t i = 0; i < num_joints_; i++) {
     if (writeMemoryAreaVars.find(joint_dl_mappings_[i].target_position_variable) ==
       writeMemoryAreaVars.end())
     {
@@ -370,7 +370,7 @@ hardware_interface::CallbackReturn VhitRobotHardwareInterface::on_activate(
   }
 
   // Update the state and command interfaces with the read values
-  for (int i = 0; i < num_joints_; i++) {
+  for (uint8_t i = 0; i < num_joints_; i++) {
     double readPosition;
     res = readMemoryArea_->getVariableValue(
       joint_dl_mappings_[i].actual_position_variable,
@@ -512,7 +512,7 @@ hardware_interface::return_type VhitRobotHardwareInterface::read(
   }
   blocking_reads_count_ = 0;
 
-  for (int i = 0; i < num_joints_; i++) {
+  for (uint8_t i = 0; i < num_joints_; i++) {
     int32_t val;
     readMemoryArea_->readVariableRt(readVariableByteIndexes_[i], firstBytePtr, val);
 
@@ -535,7 +535,7 @@ hardware_interface::return_type VhitRobotHardwareInterface::write(
     return hardware_interface::return_type::OK;
   }
   // Validate command values
-  for (int i = 0; i < num_joints_; i++) {
+  for (uint8_t i = 0; i < num_joints_; i++) {
     const double writePosition = joint_dl_mappings_[i].rad_to_units(command_joint_positions_[i]);
     if (!std::isfinite(writePosition)) {
       return hardware_interface::return_type::ERROR;
@@ -565,7 +565,7 @@ hardware_interface::return_type VhitRobotHardwareInterface::write(
   }
   blocking_writes_count_ = 0;
   // Validate command values
-  for (int i = 0; i < num_joints_; i++) {
+  for (uint8_t i = 0; i < num_joints_; i++) {
     writeMemoryArea_->writeVariableRt(
       writeVariableByteIndexes_[i], firstBytePtr,
       writeVariableValues_[i]);
