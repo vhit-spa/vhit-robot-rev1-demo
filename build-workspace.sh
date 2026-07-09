@@ -2,11 +2,11 @@
 
 set -e
 
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 
 rosdep install -i \
   --from-path src \
-  --rosdistro humble \
+  --rosdistro jazzy \
   -y
 
 rm -rf build log install
