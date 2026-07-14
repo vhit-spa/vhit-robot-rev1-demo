@@ -85,6 +85,10 @@ def launch_setup(context, *args, **kwargs):
             {
                 "controller_name": "vhit_elac_controller",
                 "joints": ["elac_node"],
+                "automatic_test": ParameterValue(
+                    LaunchConfiguration("automatic_test"),
+                    value_type=bool,
+                ),
                 "amplitude": ParameterValue(
                     LaunchConfiguration("amplitude"),
                     value_type=float,
@@ -144,6 +148,11 @@ def generate_launch_description():
                 "initial_position",
                 default_value="0.0",
                 description="Initial joint position used by ros2_control.",
+            ),
+            DeclareLaunchArgument(
+                "automatic_test",
+                default_value="true",
+                description="Start the automatic sinusoidal tester",
             ),
             DeclareLaunchArgument("amplitude", default_value="0.02"),
             DeclareLaunchArgument("period_s", default_value="6.0"),
