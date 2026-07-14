@@ -106,6 +106,7 @@ DINT.
 | `connection_string` | empty | Explicit Data Layer connection string for real-driver mode, for example `ipc://`. |
 | `dl_node` | `ELAC_node_LAN9253` | ELAC Data Layer node name used to build PDO variable paths. |
 | `initial_position` | `0.0` | Initial joint position used by ros2_control. |
+| `jog_step` | `0.01` | Position increment in radians applied to the current target for each manual jog command. A direction of `1` adds this value and `-1` subtracts it; it is used when `automatic_test:=false`. |
 | `amplitude` | `0.02` | Sine-wave command amplitude in radians. |
 | `period_s` | `6.0` | Sine-wave period in seconds. |
 | `point_duration_s` | `2.0` | Time-from-start for each trajectory point. |

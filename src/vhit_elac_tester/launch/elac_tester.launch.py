@@ -89,6 +89,10 @@ def launch_setup(context, *args, **kwargs):
                     LaunchConfiguration("automatic_test"),
                     value_type=bool,
                 ),
+                "jog_step": ParameterValue(
+                    LaunchConfiguration("jog_step"),
+                    value_type=float,
+                ),
                 "amplitude": ParameterValue(
                     LaunchConfiguration("amplitude"),
                     value_type=float,
@@ -153,6 +157,11 @@ def generate_launch_description():
                 "automatic_test",
                 default_value="true",
                 description="Start the automatic sinusoidal tester",
+            ),
+            DeclareLaunchArgument(
+                "jog_step",
+                default_value="0.01",
+                description="Position increment applied for each jog command.",
             ),
             DeclareLaunchArgument("amplitude", default_value="0.02"),
             DeclareLaunchArgument("period_s", default_value="6.0"),

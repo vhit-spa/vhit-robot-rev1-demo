@@ -34,9 +34,9 @@ class ElacTesterNode(Node):
             ["elac_node",],
         )
         self.declare_parameter("automatic_test", True)
-        self.declare_parameter("jog_step", 1.00)
-        self.declare_parameter("min_position", -2000.0)
-        self.declare_parameter("max_position", 2000.0)
+        self.declare_parameter("jog_step", 0.01)
+        self.declare_parameter("min_position", -2*math.pi)
+        self.declare_parameter("max_position", 2*math.pi)
 
         self.declare_parameter("amplitude", 0.05)
         self.declare_parameter("period_s", 4.0)
