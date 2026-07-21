@@ -18,3 +18,7 @@ __pycache__/
 
 # VS Code
 .vscode/
+
+# Source dependencies imported from vhit_robot_demo.repos
+/src/vhit_robot_driver/
+/src/vhit_robot_description/

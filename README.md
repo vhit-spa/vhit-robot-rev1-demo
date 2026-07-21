@@ -1,149 +1,156 @@
 # VHIT Robot Rev 1 Demo
 
-ROS 2 Humble demo workspace for the VHIT Robot Rev 1. The repository contains the robot description, MoveIt 2 configuration, ros2_control integration, a ctrlX Data Layer hardware interface, and snap packaging for deployment on ctrlX.
+Integration and deployment repository for the VHIT Robot Rev 1 ROS 2 stack.
 
-## Package Documentation
+This repository no longer contains copies of the ROS packages. Instead,
+`vhit_robot_demo.repos` pins compatible releases of the standalone driver,
+robot-description, and MoveIt-configuration repositories. The build scripts
+assemble those packages into a local ROS workspace and package the resulting
+merged installation as a ctrlX-compatible snap. A small integration package,
+`vhit_robot_demo`, owns the parameterized headless launch used by deployment.
 
-Each ROS package has its own README:
+## Source repositories
 
-- [vhit_robot_demo](src/vhit_robot_demo/README.md): robot URDF, meshes, and basic visualization assets.
-- [vhit_robot_moveit_config](src/vhit_robot_moveit_config/README.md): MoveIt 2, xacro, controller, and launch configuration.
-- [vhit_robot_driver](src/vhit_robot_driver/README.md): ros2_control hardware plugin, Data Layer parameters, TCP access, and shared-memory notes.
-- [vhit_passthrough_controller](src/vhit_passthrough_controller/README.md): custom ros2_control controller plugin scaffold.
-- [vhit_elac_tester](src/vhit_elac_tester/README.md): standalone single-joint ELAC controller tester for mock hardware, real hardware, and the standalone mock Data Layer.
+| Repository | Packages provided | Version used here |
+| --- | --- | --- |
+| [VHIT Robot Driver](https://github.com/vhit-spa/VHIT-Robot-Driver) | `vhit_robot_driver` | `v1.0.0` |
+| [VHIT Robot Description](https://github.com/vhit-spa/VHIT-Robot-Description) | `vhit_robot_description`, `vhit_robot_moveit_config` | `v1.0.0` |
 
-## Repository Layout
+The ELAC tester and passthrough controller are maintained and deployed
+separately; the current demo does not launch them, so they are not included in
+`vhit_robot_demo.repos`.
+
+## Repository layout
 
 ```text
-.
-├── build-workspace.sh
-├── build-snap.sh
+vhit-robot-demo/
 ├── scripts/
-│   ├── run-demo.sh
-│   └── run-test.sh
+│   └── run-demo.sh
 ├── snap/
 │   └── snapcraft.yaml
-└── src/
-    ├── vhit_robot_demo/
-    ├── vhit_robot_moveit_config/
-    ├── vhit_robot_driver/
-    ├── vhit_passthrough_controller/
-    └── vhit_elac_tester/
+├── src/
+│   └── vhit_robot_demo/
+│       └── launch/
+│           └── headless.launch.py
+├── build-snap.sh
+├── build-workspace.sh
+└── vhit_robot_demo.repos
 ```
 
-## Local Hardware Build And Run
+The integration wrapper under `src/vhit_robot_demo` is tracked. The driver and
+description repositories imported alongside it are ignored.
 
-Use this path for local development on Ubuntu 22.04 with ROS 2 Humble. This can build and launch the stack from a desktop, VM, or WSL workspace, but ctrlX realtime shared-memory access may not work outside the ctrlX runtime environment.
+## Prerequisites
 
-Prerequisites:
+For a local build on Ubuntu 22.04:
 
-- ROS 2 Humble
-- `colcon`
-- `rosdep`
-- MoveIt 2 and ros2_control runtime packages
-- ctrlX Data Layer runtime libraries when building the real hardware driver
+- ROS 2 Humble;
+- `colcon` and `rosdep`;
+- `vcstool` (`vcs` command);
+- MoveIt 2 and ros2_control dependencies; and
+- the configured ctrlX Data Layer package source required by
+  `vhit_robot_driver`.
 
-Build from the repository root:
+Install the standard workspace tools if needed:
 
 ```bash
-source /opt/ros/humble/setup.bash
-rosdep install -i --from-path src --rosdistro humble -y
-colcon build --merge-install
-source install/setup.bash
+sudo apt update
+sudo apt install python3-colcon-common-extensions python3-rosdep python3-vcstool
 ```
 
-The helper script performs a clean build:
+Initialize rosdep once per machine if it has not already been initialized:
+
+```bash
+sudo rosdep init
+rosdep update
+```
+
+## Build and run locally
+
+Clone the integration repository and select the desired branch or release:
+
+```bash
+git clone https://github.com/vhit-spa/vhit-robot-rev1-demo.git
+cd vhit-robot-rev1-demo
+```
+
+Build the complete workspace:
 
 ```bash
 ./build-workspace.sh
 ```
 
-Run the main headless launch:
+The script performs these steps:
+
+1. sources ROS 2 Humble;
+2. imports the repositories from `vhit_robot_demo.repos` into `src/`;
+3. installs resolvable system dependencies with rosdep;
+4. removes previous `build/`, `install/`, and `log/` directories; and
+5. creates a merged colcon installation in `install/`.
+
+Source the resulting workspace in every terminal used to run ROS commands:
 
 ```bash
+source /opt/ros/humble/setup.bash
 source install/setup.bash
-ros2 launch vhit_robot_moveit_config headless.launch.py
 ```
 
-`headless.launch.py` currently processes the MoveIt xacro with `hardware=real`, so ros2_control loads `vhit_robot_driver/VhitRobotHardwareInterface`.
+### Complete MoveIt demo
 
-Important Data Layer limitation for local runs:
-
-- Normal ctrlX Data Layer TCP access can work from a local machine when the ctrlX CORE is reachable.
-- EtherCAT realtime shared-memory access is local to the ctrlX runtime environment. A local/WSL process can connect over TCP and read normal Data Layer nodes, but it may still fail when calling `openMemory()` or `getMemoryMap()` for realtime EtherCAT memory.
-- A typical symptom is `DL_RT_INVALIDMEMORYMAP` even after the Data Layer client successfully connects.
-
-For the in-depth driver behavior and connection parameters, see the [vhit_robot_driver README](src/vhit_robot_driver/README.md).
-
-For a smaller single-joint controller test, including offline mock hardware and
-the standalone `vhit_mock_datalayer` workflow, see the
-[vhit_elac_tester README](src/vhit_elac_tester/README.md).
-
-## Snap Build And Run
-
-Use this path for running the demo as a ctrlX app/snap. This is the intended deployment path for realtime shared-memory access, because the process runs inside the ctrlX environment.
-
-Build the snap from the repository root:
+Start the generated MoveIt demo, including RViz:
 
 ```bash
-./build-snap.sh
+ros2 launch vhit_robot_moveit_config demo.launch.py
 ```
 
-The script first builds the ROS workspace, then runs:
+This uses the default mock-hardware configuration and is the recommended local
+functional test.
+
+### Headless demo
+
+Start robot-state publishing, ros2_control, the configured controllers, and
+`move_group` without RViz:
 
 ```bash
-snapcraft clean --destructive-mode
-snapcraft pack --build-for=amd64 --verbosity=verbose --destructive-mode
+ros2 launch vhit_robot_demo headless.launch.py
 ```
 
-Install the generated snap on the target system:
+The integration wrapper defaults to mock hardware for safe local use. Select a
+mode explicitly with the `hardware` launch argument:
 
 ```bash
-sudo snap install --dangerous ./vhit-robot-rev1-demo_*.snap
+ros2 launch vhit_robot_demo headless.launch.py hardware:=mock
+ros2 launch vhit_robot_demo headless.launch.py hardware:=gazebo
+ros2 launch vhit_robot_demo headless.launch.py hardware:=real
 ```
 
-The snap app entry point is:
+When `hardware:=real` is selected, the wrapper loads
+`vhit_robot_driver/VhitRobotHardwareInterface` and automatically supplies the
+ELAC mapping file from `vhit_robot_moveit_config`.
 
-```text
-scripts/run-demo.sh
-```
+### RViz-only visualization
 
-It sources the MoveIt runtime content snap, sources this package's setup file, and launches:
+Start RViz with the URDF, SRDF, kinematics, planning pipelines, and joint
+limits, but without `move_group` or ros2_control:
 
 ```bash
-ros2 launch vhit_robot_moveit_config headless.launch.py
+ros2 launch vhit_robot_moveit_config moveit_rviz.launch.py
 ```
 
-### Manual Shared-Memory Plug Connection
+Warnings about unavailable MoveIt action servers are expected in this mode.
 
-The snap must have its shared-memory plug connected before the driver can use ctrlX Data Layer shared memory.
+## Run tests
 
-Check the current connection:
+After building and sourcing the workspace:
 
 ```bash
-snap connections vhit-robot-rev1-demo | grep datalayer
+colcon test
+colcon test-result --verbose
 ```
 
-Connect the shared-memory plug manually if it is disconnected:
+## Real-hardware integration
 
-```bash
-sudo snap connect vhit-robot-rev1-demo:datalayer-shm rexroth-automationcore:datalayer-shm
-```
-
-If the provider snap name differs, inspect it first:
-
-```bash
-snap list | grep rexroth
-snap connections rexroth-automationcore | grep datalayer-shm
-```
-
-The `datalayer-shm` plug must use the `shared-memory` interface. If snap reports a content/shared-memory mismatch, rebuild with a matching shared-memory plug declaration before reconnecting.
-
-More troubleshooting details are in the [vhit_robot_driver README](src/vhit_robot_driver/README.md).
-
-## Hardware Modes
-
-The MoveIt xacro supports these hardware modes:
+The robot Xacro supports these hardware selections:
 
 | Mode | ros2_control plugin |
 | --- | --- |
@@ -151,40 +158,151 @@ The MoveIt xacro supports these hardware modes:
 | `gazebo` | `gz_ros2_control/GazeboSimSystem` |
 | `real` | `vhit_robot_driver/VhitRobotHardwareInterface` |
 
-`headless.launch.py` selects `real`. Other launches or xacro mappings can select `mock` or `gazebo` for visualization and simulation workflows.
+For `hardware:=real`, the integration wrapper passes the ELAC mapping file from
+`vhit_robot_moveit_config/config/elac_mapping.yaml`. The physical driver
+requires access to the ctrlX Data Layer and EtherCAT realtime shared memory.
 
-## Controllers
+The standalone MoveIt configuration remains unchanged; hardware selection for
+the deployed headless system belongs to the integration wrapper.
 
-The default ros2_control configuration is:
+Normal Data Layer nodes may be reachable over TCP from a workstation, but
+EtherCAT realtime shared memory is local to the ctrlX runtime. A remote process
+can therefore connect successfully and still fail when opening or mapping the
+realtime memory area.
 
-```text
-src/vhit_robot_moveit_config/config/ros2_controllers.yaml
-```
+## Build the snap
 
-It configures:
-
-- `joint_state_broadcaster`
-- `vhit_arm_rev1_controller`
-
-MoveIt maps execution to `vhit_arm_rev1_controller` through:
-
-```text
-src/vhit_robot_moveit_config/config/moveit_controllers.yaml
-```
-
-## Tests
-
-Run package tests after building:
+Snap deployment packages the same merged workspace used by the local build.
+Install Snapcraft on the build machine and run:
 
 ```bash
-source install/setup.bash
-colcon test --packages-select vhit_robot_driver vhit_passthrough_controller vhit_elac_tester
-colcon test-result --verbose
+cd ~/vhit-robot-demo
+./build-snap.sh
 ```
 
-## Development Notes
+The script first calls `build-workspace.sh`, then runs:
 
-- `build-workspace.sh` removes `build/`, `log/`, and `install/` before building.
-- Keep URDF joints, SRDF groups, controller YAML, `elac_mapping.yaml`, and hardware-interface joint names synchronized.
-- ros2_control loads every `<ros2_control>` block present in the final expanded `robot_description`.
-- `headless.launch.py` is the primary maintained runtime launch for this demo.
+```bash
+snapcraft clean --destructive-mode
+snapcraft pack \
+  --build-for=amd64 \
+  --verbosity=verbose \
+  --destructive-mode
+```
+
+The current build script produces:
+
+```text
+vhit-robot-rev1-demo_1.3.10_amd64.snap
+```
+
+`snapcraft.yaml` declares both amd64 and arm64, but `build-snap.sh` currently
+targets amd64. Produce arm64 artifacts through an appropriate native or
+cross-build workflow rather than relabeling an amd64 build.
+
+Destructive mode builds against the host environment. Use a dedicated build
+machine or container if the host must remain isolated from Snapcraft build
+changes.
+
+## Install the snap
+
+Copy the generated snap to the target and install the unsigned local build:
+
+```bash
+sudo snap install --dangerous ./vhit-robot-rev1-demo_1.3.10_amd64.snap
+```
+
+Inspect its content and hardware-interface connections:
+
+```bash
+snap connections vhit-robot-rev1-demo
+```
+
+The application uses these interfaces:
+
+- `ros-base` and `moveit-runtime` for the ROS and MoveIt content snaps;
+- `network` and `network-bind` for ROS communication;
+- `process-control` for the runtime processes;
+- `datalayer` for the ctrlX Data Layer content; and
+- `datalayer-shm` for realtime shared-memory access.
+
+Connect any content plugs that are not auto-connected to their provider snaps.
+For the standard ctrlX Automation Core provider, the Data Layer connections
+are:
+
+```bash
+sudo snap connect \
+  vhit-robot-rev1-demo:datalayer \
+  rexroth-automationcore:datalayer
+
+sudo snap connect \
+  vhit-robot-rev1-demo:datalayer-shm \
+  rexroth-automationcore:datalayer-shm
+```
+
+If the provider snap has a different name, discover its slots first:
+
+```bash
+snap list
+snap connections rexroth-automationcore | grep datalayer
+```
+
+## Run the installed snap
+
+Start the application in the foreground:
+
+```bash
+vhit-robot-rev1-demo
+```
+
+The snap wrapper:
+
+1. initializes the `moveit-runtime` content environment;
+2. sources the merged workspace installed in the snap; and
+3. launches `vhit_robot_demo/headless.launch.py` with `hardware:=real`.
+
+Stop it with `Ctrl-C`.
+
+Unlike the local wrapper default, the snap always selects real hardware. It
+loads `vhit_robot_driver/VhitRobotHardwareInterface`, so the Data Layer content
+and shared-memory plugs must be connected before starting the application.
+
+## Troubleshooting
+
+### A source repository cannot be imported
+
+Confirm that the release tags referenced by `vhit_robot_demo.repos` exist and
+that the build machine can access GitHub:
+
+```bash
+vcs validate --input vhit_robot_demo.repos
+vcs import src < vhit_robot_demo.repos
+```
+
+### rosdep cannot resolve `vhit_robot_driver`
+
+Run the import before rosdep. The driver is a source dependency, not a rosdep
+system key:
+
+```bash
+vcs import src < vhit_robot_demo.repos
+rosdep install --from-paths src --ignore-src -r -y
+```
+
+### The snap cannot access realtime memory
+
+Check both Data Layer connections:
+
+```bash
+snap connections vhit-robot-rev1-demo | grep datalayer
+```
+
+Verify that `datalayer-shm` connects a `shared-memory` plug to a compatible
+`shared-memory` slot. A content/shared-memory interface mismatch requires a
+manifest correction and a rebuilt snap.
+
+## Updating component versions
+
+Update versions in `vhit_robot_demo.repos` only after the corresponding
+standalone repositories have been tagged and tested together. Then validate the
+integration from a clean checkout before tagging a new demo release.
