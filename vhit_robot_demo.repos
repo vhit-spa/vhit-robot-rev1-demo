@@ -1,0 +1,10 @@
+repositories:
+  vhit_robot_driver:
+    type: git
+    url: https://github.com/vhit-spa/VHIT-Robot-Driver.git
+    version: v1.0.0
+
+  vhit_robot_description:
+    type: git
+    url: https://github.com/vhit-spa/VHIT-Robot-Description.git
+    version: v1.0.0

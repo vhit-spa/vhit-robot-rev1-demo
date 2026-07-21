@@ -46,6 +46,8 @@ apps:
       - network
       - network-bind
       - process-control
+      - datalayer
+      - datalayer-shm
 
 plugs:
   ros-base:
